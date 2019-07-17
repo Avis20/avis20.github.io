@@ -1,0 +1,20 @@
+title: Avis notes
+email: orlov.avis@yandex.ru
+description: "Thoughts, stories and ideas."
+baseurl: ""
+url: ""
+github_username:  Avis20
+
+markdown: kramdown
+plugins:
+  - jekyll-feed
+
+defaults:
+  -
+    scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: post
+      styles : [highlight.css, post.css]
+      scripts : [post.js]

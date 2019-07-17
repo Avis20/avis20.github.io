@@ -1,0 +1,13 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <link rel="shortcut icon" type="image/x-icon" media="screen" href="{{'/favicon.ico' | prepend: site.url}}" />
+    <link rel="stylesheet" href="{{'/static/css/bootstrap.min.css' | prepend: site.url}}"/>
+    <link rel="stylesheet" href="{{ '/static/css/octicons.min.css' | prepend: site.url}}"/>
+    <link rel="stylesheet" href="{{ '/static/css/monokai-sublime.css' | prepend: site.url}}" />
+    <link rel="stylesheet" href="{{ '/static/css/style.css' | prepend: site.url}}" />
+    {% for style in page.styles %}
+        <link rel="stylesheet" type="text/css" href="{{ '/static/css/' | append: style | prepend: site.url}}" />
+    {%endfor%}
+</head>

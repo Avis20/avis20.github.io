@@ -1,0 +1,6 @@
+doc:
+  build: .
+  ports:
+    - "80:4000"
+  volumes:
+    - ./:/doc

@@ -6,8 +6,8 @@ url: ""
 github_username:  Avis20
 
 markdown: kramdown
-plugins:
-  - jekyll-feed
+# plugins:
+#   - jekyll-feed
 
 defaults:
   -

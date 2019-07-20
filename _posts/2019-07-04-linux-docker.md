@@ -98,6 +98,20 @@ sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version    
 </code></pre>
 
+## Установка docker-machine
+
+<pre><code class="perl">
+base=https://github.com/docker/machine/releases/download/v0.16.0 && \
+sudo curl -L $base/docker-machine-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-machine && \
+sudo chmod +x /usr/local/bin/docker-machine
+</code></pre>
+
+<pre><code class="perl">
+base=https://github.com/docker/machine/releases/download/v0.16.0 && \
+curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine && \
+sudo install /tmp/docker-machine /usr/local/bin/docker-machine
+</code></pre>
+
 # Запуск
 
 <details>
@@ -790,6 +804,12 @@ $ docker-compose rm
 
 # Cookbook
 
+## Список всех тегов образа
+
+<pre><code class="perl">
+docker images --no-trunc | grep $(docker inspect -f {{.Id}} avis20/identidock:stable)
+</code></pre>
+
 ## Установка прав доступа юзеру к тому в Dockerfile
 
 <pre><code class="bash">
@@ -848,7 +868,7 @@ sudo docker-compose $COMPOSE_ARGS rm --force -v
 sudo docker-compose $COMPOSE_ARGS build --no-cache
 sudo docker-compose $COMPOSE_ARGS up -d
 
-sudo docker-compose $COMPOSE_ARGS run --no-deps --rm -e ENV=UNIT identidock
+sudo docker-compose $COMPOSE_ARGS run --no-deps --rm -e RUN=UNIT identidock
 ERR=$?
 
 if [ $ERR -eq 0 ]; then
@@ -856,11 +876,44 @@ if [ $ERR -eq 0 ]; then
     CODE=$(curl -sL -w "%{http_code}" $IP:9090/monster/bla -o /dev/null) || true
     if [ $CODE -ne 200 ]; then
         echo "Site returned " $CODE
-    ERR=1
+        ERR=1
+    else
+        echo "Test Passed"
+        HASH=$(git rev-parse --short HEAD)
+        sudo docker tag jenkins_identidock avis20/identidock:$HASH
+        sudo docker tag jenkins_identidock avis20/identidock:stable
+        echo "Pushing"
+        sudo docker login -u avis20 -p 1234567890docker!
+        sudo docker push avis20/identidock:$HASH
+        sudo docker push avis20/identidock:stable
     fi
 fi
 
 sudo docker-compose $COMPOSE_ARGS stop
 sudo docker-compose $COMPOSE_ARGS rm --force -v
 return $ERR
+</code></pre>
+
+
+## Разворачиваем контейнер в heroku
+
+Установка
+<pre><code class="perl">
+sudo snap install --classic heroku
+</code></pre>
+
+cmd history
+<pre><code class="perl">
+heroku container:login
+heroku create
+heroku stack:set container --app obscure-tundra-63775
+git push heroku master
+catalyst.pl MyApp
+git add -A
+git ci "init root"
+git push origin master
+git push heroku master 
+heroku open --app obscure-tundra-63775
+heroku logs --tail
+git push heroku master 
 </code></pre>

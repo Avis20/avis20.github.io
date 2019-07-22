@@ -102,12 +102,6 @@ docker-compose --version
 
 <pre><code class="perl">
 base=https://github.com/docker/machine/releases/download/v0.16.0 && \
-sudo curl -L $base/docker-machine-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-machine && \
-sudo chmod +x /usr/local/bin/docker-machine
-</code></pre>
-
-<pre><code class="perl">
-base=https://github.com/docker/machine/releases/download/v0.16.0 && \
 curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine && \
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 </code></pre>

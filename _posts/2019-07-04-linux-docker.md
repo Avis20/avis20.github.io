@@ -461,6 +461,15 @@ $ docker kill -s 15 mybash
 mybash
 </code></pre>
 
+## Добавить тег образу `docker tag`
+
+<pre><code class="perl">
+$ docker tag proxy:0.1 avis20/proxy:0.1
+$ docker images avis20/proxy
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+avis20/proxy        0.1                 e716b9df4925        2 weeks ago         109MB
+</code></pre>
+
 # Информация о механизме Docker
 
 ## Инфо `docker info`

@@ -97,13 +97,13 @@ test
 ...
 </code></pre>
 
-## Список всех тегов образа
+# Список всех тегов образа
 
 <pre><code class="bash">
 docker images --no-trunc | grep $(docker inspect -f {{.Id}} avis20/identidock:stable)
 </code></pre>
 
-## Установка прав доступа юзеру к тому в Dockerfile
+# Установка прав доступа юзеру к тому в Dockerfile
 
 <pre><code class="bash">
 FROM debian:wheezy
@@ -117,7 +117,7 @@ VOLUME /data
     <p>Если сделать в начале VOLUME /data то не получиться!</p>
 </div>
 
-## Удалить все остановленные контейнеры
+# Удалить все остановленные контейнеры
 
 <pre><code class="bash">
 $ docker ps -a
@@ -135,7 +135,12 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 </code></pre>
 
-## Запуск jekyll !!!
+<pre><code class="perl">
+echo "alias docker-clean='docker rm -v $(docker ps -aq -f status=exited)'" >> ~/.bashrc
+</code></pre>
+
+
+# Запуск jekyll !!!
 
 <pre><code class="bash">
 docker run --rm -v $PWD/doc:/srv/jekyll -it -p 4000:4000 jekyll/builder jekyll serve -LR 4001
@@ -188,7 +193,7 @@ return $ERR
 </code></pre>
 
 
-## Разворачиваем контейнер в heroku
+# Разворачиваем контейнер в heroku
 
 Установка
 <pre><code class="bash">

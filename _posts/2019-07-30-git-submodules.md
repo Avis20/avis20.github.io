@@ -10,8 +10,6 @@ reference:
 * TOC 
 {:toc}
 
-# dsa
-
 ## Добавить подмодуль - `git submodule add`
 
 <details>

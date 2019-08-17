@@ -40,7 +40,6 @@ perl MyApp/script/myapp_server.pl</code></pre>
 
 В браузере переходим на `localhost:3000` или `curl localhost:3000`
 
-
 ## Подрубаем nginx
 
 <pre><code class="perl">
@@ -90,4 +89,55 @@ sudo apt-get install apache2 libapache2-mod-perl2
 
 Вырубаем дефлтный конфиг
 <pre><code class="perl">
+</code></pre>
+
+
+# Запуск
+
+## Встроенный веб-сервер
+
+<pre><code class="perl">
+$ perl ./projects/hello-catalyst/MyApp/script/myapp_server.pl
+...
+[debug] Loaded Path actions:
+.-------------------------------------+--------------------------------------.
+| Path                                | Private                              |
++-------------------------------------+--------------------------------------+
+| /                                   | /index                               |
+| /...                                | /default                             |
+'-------------------------------------+--------------------------------------'
+
+[info] MyApp powered by Catalyst 5.90103
+HTTP::Server::PSGI: Accepting connections at http://0:3000/
+^C
+</code></pre>
+
+## Apache
+
+## Starman
+
+<pre><code class="perl">
+sudo apt-get install starman
+</code></pre>
+
+<pre><code class="perl">
+$ starman ./projects/hello-catalyst/MyApp/myapp.psgi -p 3000
+...
+Error while loading /home/vagrant/projects/hello-catalyst/MyApp/myapp.psgi: Can't locate MyApp.pm in @INC (you may need to install the MyApp module) (@INC contains: /home/avis/perl5/lib/perl5 /home/avis/perl5/lib/perl5 /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.22.1 /usr/local/share/perl/5.22.1 /usr/lib/x86_64-linux-gnu/perl5/5.22 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl/5.22 /usr/share/perl/5.22 /usr/local/lib/site_perl /usr/lib/x86_64-linux-gnu/perl-base .) at /home/vagrant/projects/hello-catalyst/MyApp/myapp.psgi line 4.
+</code></pre>
+
+хм...
+<pre><code class="perl">
+
+...
+$ cat ./projects/hello-catalyst/MyApp/myapp.psgi 
+use strict;
+use warnings;
+
+use lib::abs qw| ./lib |;
+
+use MyApp;
+
+my $app = MyApp->apply_default_middlewares(MyApp->psgi_app);
+$app;
 </code></pre>

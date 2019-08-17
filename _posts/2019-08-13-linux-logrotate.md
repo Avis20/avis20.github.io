@@ -1,6 +1,6 @@
 ---
 title: Linux - Logrotate
-tags: etc
+tags: linux
 reference:
   - title: НАСТРОЙКА LOGROTATE
     link: https://losst.ru/nastrojka-logrotate

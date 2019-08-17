@@ -6,6 +6,8 @@ reference:
     link: http://windows64.net/windows-xp-x64-skachat-torrent/originalnye-obrazy-xp/14-skachat-windows-xp-sp3-originalnyy-obraz-aktivator.html
   - title: НЕ РАБОТАЕТ СЕТь в 16.04
     link: https://github.com/hashicorp/vagrant/issues/7155
+  - title: Введение в Vagrant
+    link: https://code.tutsplus.com/ru/tutorials/introduction-to-vagrant--cms-25917
 ---
 
 * TOC 

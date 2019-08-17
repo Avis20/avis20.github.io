@@ -96,4 +96,8 @@ Warning: the running version of Bundler is older than the version that created t
 Fetching gem metadata from https://rubygems.org/......
 </code></pre>
 
+<pre><code class="perl">
+gem install bundler
+</code></pre>
+
 </div>

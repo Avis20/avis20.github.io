@@ -14,27 +14,50 @@ reference:
 * TOC 
 {:toc}
 
-# Установка Ubuntu 16.04
+# Cookbook/Shortcuts
 
-1
+## Рестарт unitd
+
+К сожалению на текущий момент у unit нет команды reload или restart, есть issues на это дело и также есть лайфхак <a href="https://github.com/nginx/unit/issues/17" target="_blank">issues</a> 
+
+<pre><code class="perl">
+sudo curl -X PUT -d '{"APPVERSION":"'$(date +"%s")'"}' --unix-socket /var/run/control.unit.sock http://localhost/config/applications/hello-catalyst/environment
+</code></pre>
+
+## Запуск и tail
+
+Как dev сервер не получиться, придеться делать скрипт запуска
+<pre><code class="perl">
+$ cat ./start.sh 
+#!/usr/bin/env bash
+
+sudo unitd --no-daemon &
+sudo tail -f /var/log/unit.log
+
+</code></pre>
+
+
+# Установка из пакетов в Ubuntu 16.04
+
+1) Ключики
 <pre><code class="perl">
 wget http://nginx.org/keys/nginx_signing.key
 sudo apt-key add nginx_signing.key
 </code></pre>
 
-2 Добавить 2 строки
+2) Добавить пути
 <pre><code class="perl">
 sudo echo "deb http://nginx.org/packages/mainline/ubuntu/ xenial nginx" | sudo tee -a /etc/apt/sources.list
 sudo echo "deb-src http://nginx.org/packages/mainline/ubuntu/ xenial nginx" | sudo tee -a /etc/apt/sources.list
 </code></pre>
 
-3
+3) update и install
 <pre><code class="perl">
 sudo apt-get update
 sudo apt-get -y install unit
 </code></pre>
 
-# Настройка
+# Управление
 
 1) запуск
 <pre><code class="perl">
@@ -53,7 +76,7 @@ sudo service unitd dumpconfig
 
 По умолчанию unit содержит модули для работы с php и python. Для остальных нужно отдельно собирать
 
-# Сборка
+# Собираем свой
 
 1) качаем исходники
 <pre><code class="perl">

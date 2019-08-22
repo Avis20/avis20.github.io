@@ -57,25 +57,6 @@ sudo apt-get update
 sudo apt-get -y install unit
 </code></pre>
 
-# Управление
-
-1) запуск
-<pre><code class="perl">
-sudo service unitd start
-</code></pre>
-
-2) задаем конфиг файл
-<pre><code class="perl">
-sudo service unitd restoreconfig /usr/share/doc/unit/examples/example.config
-</code></pre>
-
-3) вывести текущий конфиг
-<pre><code class="perl">
-sudo service unitd dumpconfig
-</code></pre>
-
-По умолчанию unit содержит модули для работы с php и python. Для остальных нужно отдельно собирать
-
 # Собираем свой
 
 1) качаем исходники
@@ -98,9 +79,9 @@ git clone https://github.com/nginx/unit.git && cd unit
   --control=unix:/var/run/control.unit.sock
 </code></pre>
 
-3) Скачиваем поддержку dev разработки!!!
+3) Скачиваем поддержку perl-dev!!!
 <div class="warn">
-    <p>Без этого будет ошибка</p>
+    <p>Без этого (или из любого друого яп) будет ошибка</p>
     <pre><code class="perl">
 $ ./configure perl
 configuring Perl module
@@ -143,6 +124,26 @@ $ ls -l /usr/lib/unit/modules
 total 304
 -rwxr-xr-x 1 root root 308568 Aug 17 12:05 perl.unit.so
 </code></pre>
+
+# Управление
+
+1) запуск
+<pre><code class="perl">
+sudo service unitd start
+</code></pre>
+
+2) задаем конфиг файл
+<pre><code class="perl">
+sudo service unitd restoreconfig /usr/share/doc/unit/examples/example.config
+</code></pre>
+
+3) вывести текущий конфиг
+<pre><code class="perl">
+sudo service unitd dumpconfig
+</code></pre>
+
+По умолчанию unit содержит модули для работы с php и python. Для остальных нужно отдельно собирать
+
 
 # Проба пера - psgi
 
@@ -196,6 +197,7 @@ $ sudo curl -XPUT -d @perl.conf --unix-socket /var/run/control.unit.sock http://
         <pre><code class="perl">
 curl: (7) Couldn't connect to server
         </code></pre>
+        Т.к. сокет создан из под рута
     </p>
 </div>
 

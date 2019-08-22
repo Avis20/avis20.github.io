@@ -13,6 +13,54 @@ reference:
 
 # Cookbook
 
+Здесь перечислены большинство плюшек связаных с докером, всякие шорт каты и т.п.
+
+# История образа. Как понять из чего контейнер?
+
+TODO
+
+# Список всех тегов образа
+
+<pre><code class="bash">
+docker images --no-trunc | grep $(docker inspect -f {{.Id}} avis20/identidock:stable)
+</code></pre>
+
+# Установка прав доступа юзеру к тому в Dockerfile
+
+<pre><code class="bash">
+FROM debian:wheezy
+RUN useradd foo
+RUN mkdir /data && touch /data/x
+RUN chown -R foo:foo /data
+VOLUME /data
+</code></pre>
+
+<div class="error">
+    <p>Если сделать в начале VOLUME /data то не получиться!</p>
+</div>
+
+# Удалить все остановленные контейнеры
+
+<pre><code class="bash">
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                    PORTS               NAMES
+7e61ddf2b718        debian              "bash"              3 seconds ago       Exited (0) 1 second ago                       docker-cont
+3fe6ef8c1e54        debian              "bash"              8 seconds ago       Up 7 seconds                                  vigilant_napier
+vagrant@ubuntu-xenial:~$ 
+...
+$ docker rm -v $(docker ps -aq -f status=exited)
+7e61ddf2b718
+...
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+3fe6ef8c1e54        debian              "bash"              2 minutes ago       Up 2 minutes                            vigilant_napier
+
+</code></pre>
+
+<pre><code class="perl">
+echo "alias docker-clean='docker rm -v $(docker ps -aq -f status=exited)'" >> ~/.bashrc
+</code></pre>
+
 # Как залить на `Docker Hub`
 
 1) Создаем учетку на `hub.docker.com`
@@ -95,48 +143,6 @@ root@new-cont:/# ls /data/
 root@new-cont:/# ls /data/
 test
 ...
-</code></pre>
-
-# Список всех тегов образа
-
-<pre><code class="bash">
-docker images --no-trunc | grep $(docker inspect -f {{.Id}} avis20/identidock:stable)
-</code></pre>
-
-# Установка прав доступа юзеру к тому в Dockerfile
-
-<pre><code class="bash">
-FROM debian:wheezy
-RUN useradd foo
-RUN mkdir /data && touch /data/x
-RUN chown -R foo:foo /data
-VOLUME /data
-</code></pre>
-
-<div class="error">
-    <p>Если сделать в начале VOLUME /data то не получиться!</p>
-</div>
-
-# Удалить все остановленные контейнеры
-
-<pre><code class="bash">
-$ docker ps -a
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                    PORTS               NAMES
-7e61ddf2b718        debian              "bash"              3 seconds ago       Exited (0) 1 second ago                       docker-cont
-3fe6ef8c1e54        debian              "bash"              8 seconds ago       Up 7 seconds                                  vigilant_napier
-vagrant@ubuntu-xenial:~$ 
-...
-$ docker rm -v $(docker ps -aq -f status=exited)
-7e61ddf2b718
-...
-$ docker ps -a
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-3fe6ef8c1e54        debian              "bash"              2 minutes ago       Up 2 minutes                            vigilant_napier
-
-</code></pre>
-
-<pre><code class="perl">
-echo "alias docker-clean='docker rm -v $(docker ps -aq -f status=exited)'" >> ~/.bashrc
 </code></pre>
 
 

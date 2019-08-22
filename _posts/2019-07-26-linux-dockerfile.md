@@ -8,6 +8,9 @@ reference:
   - title: "Виртуализация процесса разработки, часть 2: Docker и Vagrant"
     link: https://dou.ua/lenta/articles/vagrant/
 
+  - title: "Intro Guide to Dockerfile Best Practices"
+    link: https://blog.docker.com/2019/07/intro-guide-to-dockerfile-best-practices/
+    
   - title:
     link:
   - title:

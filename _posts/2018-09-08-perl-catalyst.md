@@ -16,16 +16,38 @@ reference:
 * TOC 
 {:toc}
 
-## Установка
+## Установка через пакеты в Ubuntu 16.04
 
-на ubuntu 
 <pre><code class="perl">
-sudo apt install make build-essential
+sudo apt-get update && sudo apt install make build-essential
+</code></pre>
 
+<div class="warn">
+    <p>Если не находит модули, можно захордкодить перменные окружения (но лучше всетаки не стоит)
+<pre><code class="perl">
 PERL5LIB="/home/avis/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB; PERL5LIB="/home/avis/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}" >> ~/.bashrc
+</code></pre>
+    </p>
+</div>
 
+Обычно установка сводиться к 
+<pre><code class="perl">
 sudo apt-get install libcatalyst-perl
-curl -L cpanmin.us | perl - -l $HOME/perl5 App::cpanminus uni::perl local::lib Catalyst::Devel
+</code></pre>
+
+Но если чего начинает не хватать, то
+<pre><code class="perl">
+sudo apt-get install libcatalyst-perl libcatalyst-devel-perl \
+libcatalyst-plugin-static-simple-perl libcatalyst-plugin-configloader-perl \
+liblib-abs-perl \
+libcatalyst-action-renderview-perl
+</code></pre>
+
+Для большинства задач хватает. 
+
+Если же в пакетах нет, и лень собирать свои, то качаем с цпана
+<pre><code class="perl">
+curl -L cpanmin.us | sudo perl - -l /usr/share/perl5 App::cpanminus uni::perl local::lib
 </code></pre>
 
 ## Создание приложения

@@ -36,7 +36,6 @@ sudo tail -f /var/log/unit.log
 
 </code></pre>
 
-
 # Установка из пакетов в Ubuntu 16.04
 
 1) Ключики
@@ -56,6 +55,10 @@ sudo echo "deb-src http://nginx.org/packages/mainline/ubuntu/ xenial nginx" | su
 sudo apt-get update
 sudo apt-get -y install unit
 </code></pre>
+
+<div class="warn">
+  <p>По умолчанию, в пекетах собран unit с поддержкой модулей php и python. Для остальных нужно отдельно собирать</p>
+</div>
 
 # Собираем свой
 
@@ -127,6 +130,8 @@ total 304
 
 # Управление
 
+## Если установка через пакеты
+
 1) запуск
 <pre><code class="perl">
 sudo service unitd start
@@ -142,7 +147,27 @@ sudo service unitd restoreconfig /usr/share/doc/unit/examples/example.config
 sudo service unitd dumpconfig
 </code></pre>
 
-По умолчанию unit содержит модули для работы с php и python. Для остальных нужно отдельно собирать
+## Из пакетов 
+
+Запуск без фонового запуска
+
+<pre><code class="perl">
+sudo unitd --no-daemon
+</code></pre>
+
+Логи
+<pre><code class="perl">
+sudo tail -f /var/log/unit.log
+</code></pre>
+
+Настройка осуществляется через демона с помощью REST API
+
+
+Поулчение конфига
+<pre><code class="perl">
+vagrant@vagrant:~$ sudo curl -XGET --unix-socket /var/run/control.unit.sock http://localhost/config/
+
+</code></pre>
 
 
 # Проба пера - psgi
@@ -259,6 +284,13 @@ $VAR1 = {
 </code></pre>
 
 # Проба пера - catalyst
+
+Установка каталиста см. <a href="/2018/09/08/perl-catalyst.html">Perl - Catalyst</a>
+
+Создаем конфиг
+<pre><code class="perl">
+
+</code></pre>
 
 
 

@@ -146,7 +146,17 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>PostgreSQL</h2>
+<h2>БД, PostgreSQL</h2>
+
+<div class="item">
+    <img src="/static/img/books/db_system.png" alt="Системы баз данных Полный курс" title="Системы баз данных Полный курс">
+    <div class="links">
+        <ul>
+            <li><a href="https://yadi.sk/d/wBPGER2_3Uw6vS" target="_blank">Скачать 2003г. 1089 с. PDF</a></li>
+        </ul>
+    </div>
+    <p>Системы баз данных Полный курс</p>
+</div>
 
 <div class="item">
     <img src="/static/img/books/pgsql1.png" alt="Администрирование PostgreSQL 9. Книга рецептов" title="Администрирование PostgreSQL 9. Книга рецептов">
@@ -359,6 +369,5 @@ TODO:
     <li>nginx - https://disk.yandex.ru/client/disk/Books/nginx</li>
     <li>Сборник задач по программированию - https://disk.yandex.ru/client/disk/Books/Algorithm</li>
     <li>English - https://disk.yandex.ru/client/disk/Books/English</li>
-    <li>Системы баз данных Полный курс  2003 - https://yadi.sk/d/wBPGER2_3Uw6vS</li>
 </ul>
 

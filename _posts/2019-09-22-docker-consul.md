@@ -4,6 +4,8 @@ tags: [docker,consul]
 reference:
   - title: Использование Consul для service discovery и других задач
     link: https://eax.me/consul/
+  - title: Consul: Service Discovery это просто, или прощаемся с конфиг-файлами
+    link: https://habr.com/ru/post/266139/
 ---
 
 * TOC 

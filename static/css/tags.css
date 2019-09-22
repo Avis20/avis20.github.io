@@ -17,6 +17,7 @@
 }
 
 .tag-box.inline li {
+    margin: 0 2px;
     float: left;
     font-size: 14px;
     font-size: 1em;

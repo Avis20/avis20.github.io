@@ -1,10 +1,10 @@
 ---
-title: Docker - Consul
-tags: [docker,consul]
+title: "Docker - Consul"
+tags: docker consul
 reference:
-  - title: Использование Consul для service discovery и других задач
+  - title: "Использование Consul для service discovery и других задач"
     link: https://eax.me/consul/
-  - title: Consul: Service Discovery это просто, или прощаемся с конфиг-файлами
+  - title: "Consul: Service Discovery это просто, или прощаемся с конфиг-файлами"
     link: https://habr.com/ru/post/266139/
 ---
 
@@ -55,6 +55,7 @@ world
 
 Регистрация сервиса
 <pre><code class="perl">
+HOSTB=3.3.3.3
 curl -XPUT http://$HOSTA:8500/v1/agent/service/register -d '{"name":"redis", "address":"'$HOSTB'", "port":6379}'
 </code></pre>
 

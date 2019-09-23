@@ -18,6 +18,8 @@ reference:
 ## Комбинации
 
 <table>
+  <tr><th>Важные!</th><th></th></tr>
+  <tr><td><b>ctrl+i alt+s</b></td><td>Выключить плагин для сайта на котором находишься</td></tr>
   <tr><th>Прокрутка</th><th></th></tr>
   <tr><td><b>d</b></td><td>Прокрутить страницу вниз aka PageDown</td></tr>
   <tr><td><b>e</b></td><td>Прокрутить страницу вверх aka PageUp</td></tr>

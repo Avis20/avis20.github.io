@@ -58,6 +58,12 @@ world
 curl -XPUT http://$HOSTA:8500/v1/agent/service/register -d '{"name":"redis", "address":"'$HOSTB'", "port":6379}'
 </code></pre>
 
+Проверяем что сервис действительно добавился 
+<pre><code class="perl">
+export HOSTA=3.3.3.2
+curl -s http://$HOSTA:8500/v1/agent/services | json_pp
+</code></pre>
+
 <div class="warn">
   <p>Вот тут и начинаются пляски</p>
   <p>то как напишешь name значение не имеет, для получения адреса нужно использовать конструкцию node.node[.datacenter].domain </p>

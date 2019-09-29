@@ -55,12 +55,15 @@ world
 
 Регистрация сервиса
 <pre><code class="perl">
+docker run -d -p 6379:6379 --name redis redis:3
+
 curl -XPUT http://$HOSTA:8500/v1/agent/service/register -d '{"name":"redis", "address":"'$HOSTB'", "port":6379}'
 </code></pre>
 
 Проверяем что сервис действительно добавился 
 <pre><code class="perl">
 export HOSTA=3.3.3.2
+export HOSTB=3.3.3.3
 curl -s http://$HOSTA:8500/v1/agent/services | json_pp
 </code></pre>
 

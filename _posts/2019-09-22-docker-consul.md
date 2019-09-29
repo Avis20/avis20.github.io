@@ -1,6 +1,6 @@
 ---
 title: "Docker - Consul"
-tags: docker consul
+tags: [docker, consul]
 reference:
   - title: "Использование Consul для service discovery и других задач"
     link: https://eax.me/consul/

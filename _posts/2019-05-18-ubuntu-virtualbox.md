@@ -1,6 +1,6 @@
 ---
-title: VirtualBox на Ubuntu 16.04. Установка/Настройка
-tags: [chrome, tools]
+title: "Ubuntu 16.04: Установка/Настройка VirtualBox + EMS"
+tags: [ubuntu, tools]
 reference:
   - title: Образ достаточно чистой оси
     link: http://windows64.net/windows-xp-x64-skachat-torrent/originalnye-obrazy-xp/14-skachat-windows-xp-sp3-originalnyy-obraz-aktivator.html

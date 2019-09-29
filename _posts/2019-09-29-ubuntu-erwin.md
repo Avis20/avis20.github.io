@@ -1,6 +1,6 @@
 ---
 title: "Ubuntu 16.04: Установка/Настройка ERWin под Wine"
-tags: [chrome, tools]
+tags: [ubuntu, tools, wine]
 reference:
   - title: "How to Install Wine 4.0 on Ubuntu 18.04 & 16.04 LTS"
     link: https://tecadmin.net/install-wine-on-ubuntu/

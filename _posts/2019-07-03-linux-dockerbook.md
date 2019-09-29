@@ -1,6 +1,6 @@
 ---
 title: Заметки по книге - Docker
-tags: docker
+tags: [book, docker]
 reference:
   - title: Примеры из книги
     link: https://github.com/using-docker

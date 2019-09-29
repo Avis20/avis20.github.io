@@ -126,5 +126,10 @@ curl -XPUT http://$HOSTA:8500/v1/agent/service/register -d '{"name":"dnmonster",
 # Сети
 
 <pre><code class="perl">
-docker run -d --name redis1 --publish-service db.bridge redis
+docker run -d --name redis1 redis:3
 </code></pre>
+
+<pre><code class="perl">
+docker run -it redis redis-cli -h db ping
+</code></pre>
+

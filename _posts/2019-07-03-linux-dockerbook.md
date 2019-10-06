@@ -133,3 +133,8 @@ docker run -d --name redis1 redis:3
 docker run -it redis redis-cli -h db ping
 </code></pre>
 
+## Режимы сетей 
+
+1) bridge - по умолчанию
+
+Создает NAT подсеть 

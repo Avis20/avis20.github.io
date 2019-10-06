@@ -1,6 +1,6 @@
 ---
 title: Git - Submodules
-tags: etc
+tags: git
 reference:
   - title: 
     link: 

@@ -1,6 +1,6 @@
 ---
 title: Git - Как правильно добавлять в gitignore?
-tags: [git]
+tags: git
 reference:
   - title: .gitignore
     link: https://ru.atlassian.com/git/tutorials/saving-changes/gitignore

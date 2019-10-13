@@ -1,6 +1,6 @@
 ---
 title: "Nginx - Таблица переменных"
-tags: [log_format, nginx]
+tags: [nginx]
 reference:
   - title: dictionnary variable in log format NGINX
     link: https://stackoverflow.com/questions/37437153/dictionnary-variable-in-log-format-nginx

@@ -1,6 +1,6 @@
 ---
 title: "Linux - Wireshark"
-tags: [linux, database]
+tags: [linux]
 reference:
   - title: "youtube: Основы Wireshark. Настройка, захват и расшифровка трафика"
     link: https://www.youtube.com/watch?v=Kfnoy9TziNg

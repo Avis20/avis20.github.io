@@ -156,6 +156,17 @@ styles: [books.css]
         </ul>
     </div>
     <p>Системы баз данных Полный курс</p>
+    <p>2019-09-04</p>
+</div>
+
+<div class="item">
+    <img src="/static/img/books/sql-receipts.png" alt="SQL Сборник рецептов" title="SQL Сборник рецептов">
+    <div class="links">
+        <ul>
+            <li><a href="https://yadi.sk/i/qF8MsVGqgH4Nqg" target="_blank">Скачать 2009г. 672 с. PDF</a></li>
+        </ul>
+    </div>
+    <p>SQL Сборник рецептов</p>
 </div>
 
 <div class="item">

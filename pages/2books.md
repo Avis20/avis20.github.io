@@ -7,6 +7,9 @@ isNavItem: true
 styles: [books.css]
 ---
 
+* TOC
+{:toc}
+
 <h2>Алгоритмы/Основы</h2>
 
 <div class="item">
@@ -64,8 +67,8 @@ styles: [books.css]
     </div>
     <p>Язык программирования Си</p>
     <p>
-        <span style="color: green" class="octicon octicon-check">done</span>
-        <p>30.09.2018 - 02.07.2019</p>
+        <span style="color: green" class="octicon octicon-thumbsup"></span><br>
+        <p>30.09.2018 - <br>02.07.2019</p>
     </p>
 </div>
 
@@ -149,6 +152,22 @@ styles: [books.css]
 <h2>БД, PostgreSQL</h2>
 
 <div class="item">
+    <img src="/static/img/books/db_system2.png" alt="Введение в системы баз данных" title="Введение в системы баз данных">
+    <div class="links">
+        <ul>
+            <li><a href="https://yadi.sk/i/ENMa9y66K00LpQ" target="_blank">Скачать 2005г. 1328 с. PDF</a></li>
+        </ul>
+    </div>
+    <p>Введение в системы баз данных</p>
+    <p>
+        <!-- <span style="color: red" class="octicon octicon-thumbsup"></span><br> -->
+        2019-11-10 - <br>
+    </p>
+</div>
+
+
+
+<div class="item">
     <img src="/static/img/books/db_system.png" alt="Системы баз данных Полный курс" title="Системы баз данных Полный курс">
     <div class="links">
         <ul>
@@ -156,7 +175,10 @@ styles: [books.css]
         </ul>
     </div>
     <p>Системы баз данных Полный курс</p>
-    <p>2019-09-04</p>
+    <p>
+        <span style="color: red" class="octicon octicon-thumbsdown"></span><br>
+        2019-09-04 - <br>2019-11-03
+    </p>
 </div>
 
 <div class="item">
@@ -215,7 +237,10 @@ styles: [books.css]
         </ul>
     </div>
     <p>Изучаем Perl</p>
-    <p><span style="color: green" class="octicon octicon-check">done</span> - 2016г.</p>
+    <p>
+        <span style="color: green" class="octicon octicon-thumbsup"></span><br>
+        <br> - 2016г.
+    </p>
 </div>
 
 <div class="item">
@@ -226,7 +251,10 @@ styles: [books.css]
         </ul>
     </div>
     <p>Изучаем perl глубже</p>
-    <p><span style="color: green" class="octicon octicon-check">done</span> - 2017г.</p>
+    <p>
+        <span style="color: green" class="octicon octicon-thumbsup"></span><br>
+        <br> - 2017г.
+    </p>
 </div>
 
 <div class="item">
@@ -359,7 +387,10 @@ styles: [books.css]
         </ul>
     </div>
     <p>Yaml Cookbook. at the YamlForRuby site</p>
-    <p><span style="color: green" class="octicon octicon-check">done</span> - 2018г.</p>
+    <p>
+        <span style="color: green" class="octicon octicon-thumbsup"></span><br>
+        <br> - 2018г.
+    </p>
 </div>
 
 <div class="item">

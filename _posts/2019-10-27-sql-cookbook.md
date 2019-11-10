@@ -14,16 +14,17 @@ emp - служащие
 * comm - коммисионные
 * sal - зарплата
 
-# Глава 1. Извлечение запией (SELECT)
+# Глава 1. Извлечение записей (SELECT)
 
 Выборка всех данных
 <pre><code class="perl">
-select * from emp;
+SELECT * FROM emp;
 </code></pre>
 
 Выборка определенных строк
 <pre><code class="perl">
-select * from emp where deptno = 10
+SELECT * FROM emp
+WHERE deptno = 10
 </code></pre>
 
 Выборка по нескольким условиям  
@@ -32,6 +33,6 @@ select * from emp where deptno = 10
 SELECT *
 FROM emp
 WHERE deptno = 10
-    OR comm IS NOT NULL
-    OR sal <= 2000 AND deptno = 20
+      OR comm IS NOT NULL
+      OR sal <= 2000 AND deptno = 20
 </code></pre>

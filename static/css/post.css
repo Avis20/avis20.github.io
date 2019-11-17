@@ -1,13 +1,9 @@
 
-.warn p {
+.warn p, .error p, .info p {
     margin: 8px 0;
 }
 
-.error p {
-    margin: 8px 0;
-}
-
-.warn, .error {
+.warn, .error, .info {
     border: 1px solid;
     border-radius: 10px;
     padding-left: 30px;
@@ -16,15 +12,11 @@
     margin: 20px 0;
 }
 
-.warn {
-    border-color: orange;
-}
+.warn  { border-color: orange }
+.error { border: 1px solid red }
+.info  { border: 1px solid #5bc0de }
 
-.error {
-    border: 1px solid red;
-}
-
-.warn:before, .error:before {
+.warn:before, .error:before, .info:before  {
     font: normal normal normal 16px/1 octicons;
     display: inline-block;
     text-decoration: none;
@@ -37,6 +29,12 @@
     user-select: none;
     margin: 10px 0 0 -25px;
     float: left;
+}
+
+.info:before {
+    content: '\f0e8';
+    color: #5bc0de;
+    padding: 0 5px;
 }
 
 .warn:before {

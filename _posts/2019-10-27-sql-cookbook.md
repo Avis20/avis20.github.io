@@ -144,17 +144,32 @@ FROM emp;
 (14 строк)
 </code></pre>
 
-<div class="error">
-<p>НЕ РАБОТАЕТ!</p>
-<p>Обращение к столбцу в WHERE по псевдониму</p>
+### Обращение к столбцу в WHERE по псевдониму
+
 <pre><code class="sql">
 SELECT * FROM (
     SELECT sal AS "Зарплата", comm AS "Коммисионные"
     FROM emp
-) table
-WHERE "Зарплата" < 5000
+) table1
+WHERE "Зарплата" < 5000;
+...
+ Зарплата | Коммисионные 
+----------+--------------
+   800.00 |             
+  1600.00 |       300.00
+  1250.00 |       500.00
+  2975.00 |             
+  1250.00 |      1400.00
+  2850.00 |             
+  2450.00 |             
+  3000.00 |             
+  1500.00 |         0.00
+  1100.00 |             
+   950.00 |             
+  3000.00 |             
+  1300.00 |             
+(13 строк)
 </code></pre>
-</div>
 
 ### Конкатенация значений столбцов
 <pre><code class="sql">
@@ -488,3 +503,35 @@ SELECT TRANSLATE('apple,orange,banana', ',', ';');
 
 
 ### Обработка значений NULL при сортировке
+
+<i>определенные значения comm сортируются по возврастанию, после них располагаются все строки с неопределенными значениями</i>
+<pre><code class="perl">
+SELECT ename, sal, comm FROM (
+    SELECT ename, sal, comm, (
+            CASE
+                 WHEN comm IS NULL THEN 0
+                 ELSE 1
+            END
+        ) AS is_null
+    FROM emp
+) x
+ORDER BY is_null DESC, comm
+...
+ ename  |   sal   |  comm   
+--------+---------+---------
+ TURNER | 1500.00 |    0.00
+ ALLEN  | 1600.00 |  300.00
+ WARD   | 1250.00 |  500.00
+ MARTIN | 1250.00 | 1400.00
+ SCOTT  | 3000.00 |        
+ KING   | 5000.00 |        
+ ADAMS  | 1100.00 |        
+ JAMES  |  950.00 |        
+ FORD   | 3000.00 |        
+ SMITH  |  800.00 |        
+ MILLER | 1300.00 |        
+ JONES  | 2975.00 |        
+ BLAKE  | 2850.00 |        
+ CLARK  | 2450.00 |        
+(14 строк)
+</code></pre>

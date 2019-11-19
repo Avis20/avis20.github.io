@@ -535,3 +535,128 @@ ORDER BY is_null DESC, comm
  CLARK  | 2450.00 |        
 (14 строк)
 </code></pre>
+
+
+### Сортировка через `CASE`
+
+<i>
+Eсли значение JOB - "SALESMAN", сортировка должна осуществляться по столбцу COMM; в противном случае сортируем по SAL
+</i>
+<pre><code class="perl">
+SELECT ename, sal, job, comm
+FROM emp
+ORDER BY
+CASE
+  WHEN job = 'SALESMAN' THEN comm
+  ELSE sal
+END;
+...
+ ename  |   sal   |    job    |  comm   
+--------+---------+-----------+---------
+ TURNER | 1500.00 | SALESMAN  |    0.00
+ ALLEN  | 1600.00 | SALESMAN  |  300.00
+ WARD   | 1250.00 | SALESMAN  |  500.00
+ SMITH  |  800.00 | CLERK     |        
+ JAMES  |  950.00 | CLERK     |        
+ ADAMS  | 1100.00 | CLERK     |        
+ MILLER | 1300.00 | CLERK     |        
+ MARTIN | 1250.00 | SALESMAN  | 1400.00
+ CLARK  | 2450.00 | MANAGER   |        
+ BLAKE  | 2850.00 | MANAGER   |        
+ JONES  | 2975.00 | MANAGER   |        
+ SCOTT  | 3000.00 | ANALYST   |        
+ FORD   | 3000.00 | ANALYST   |        
+ KING   | 5000.00 | PRESIDENT |        
+(14 rows)
+</code></pre>
+
+
+# Глава 3. Работа с несколькими таблицами
+
+<i>
+вывести на экран имена и номер отдела служащих 10!го отдела, хранящиеся в таблице EMP, а также названия и номера всех отделов из таблицы DEPT
+</i>
+
+<pre><code class="perl">
+SELECT ename, deptno
+FROM emp
+WHERE deptno = 10
+
+UNION ALL
+
+SELECT '-------', NULL
+
+UNION ALL
+
+SELECT dname, deptno
+FROM dept;
+
+   ename    | deptno 
+------------+--------
+ CLARK      |     10
+ KING       |     10
+ MILLER     |     10
+ -------    |       
+ ACCOUNTING |     10
+ RESEARCH   |     20
+ SALES      |     30
+ OPERATIONS |     40
+(8 rows)
+</code></pre>
+
+### Объединение строк
+
+<i>
+Вывести имена всех служащих 10-го отдела, а так же местонахождение отдела для каждого служащего
+</i>
+
+<pre><code class="perl">
+SELECT ename, loc
+FROM emp, dept
+WHERE emp.deptno = dept.deptno AND emp.deptno = 10;
+...
+ ename  |   loc    
+--------+----------
+ CLARK  | NEW YORK
+ KING   | NEW YORK
+ MILLER | NEW YORK
+(3 rows)
+</code></pre>
+
+### Поиск однаковых сток в двух таблицах
+
+<pre><code class="perl">
+CREATE VIEW table v_emp AS
+SELECT ename, job, sal FROM emp
+WHERE job = 'CLERK'
+...
+ ename  |  job  |   sal   
+--------+-------+---------
+ SMITH  | CLERK |  800.00
+ ADAMS  | CLERK | 1100.00
+ JAMES  | CLERK |  950.00
+ MILLER | CLERK | 1300.00
+(4 rows)
+
+...
+
+SELECT *
+FROM emp
+WHERE (ename, job, sal) IN (
+  SELECT ename, job, sal
+  FROM emp
+  INTERSECT
+  SELECT ename,job, sal FROM v_emp
+);
+...
+
+ empno | ename  |  job  | mgr  |  hiredate  |   sal   | comm | deptno 
+-------+--------+-------+------+------------+---------+------+--------
+  7369 | SMITH  | CLERK | 7902 | 1980-12-17 |  800.00 |      |     20
+  7876 | ADAMS  | CLERK | 7788 | 1983-01-12 | 1100.00 |      |     20
+  7900 | JAMES  | CLERK | 7698 | 1981-12-03 |  950.00 |      |     30
+  7934 | MILLER | CLERK | 7782 | 1982-01-23 | 1300.00 |      |     10
+(4 rows)
+
+
+</code></pre>

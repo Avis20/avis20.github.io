@@ -463,7 +463,7 @@ mybash
 
 ## Добавить тег образу `docker tag`
 
-<pre><code class="perl">
+<pre><code class="bash">
 $ docker tag proxy:0.1 avis20/proxy:0.1
 $ docker images avis20/proxy
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
@@ -654,3 +654,9 @@ docker-compose logs -f
 $ docker-compose rm
 </code></pre>
 
+
+## Запуск контейнера работающем в сети на хосте `docker run --net=host`
+
+<pre><code class="bash">
+docker run --rm --net=host -d postgres:9.6 
+</code></pre>

@@ -623,7 +623,7 @@ WHERE emp.deptno = dept.deptno AND emp.deptno = 10;
 (3 rows)
 </code></pre>
 
-### Поиск однаковых сток в двух таблицах
+### Поиск одинаковых сток в двух таблицах
 
 <pre><code class="perl">
 CREATE VIEW table v_emp AS

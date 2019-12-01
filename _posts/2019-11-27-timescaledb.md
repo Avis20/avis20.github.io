@@ -61,3 +61,5 @@ FROM rides
 WHERE passenger_count > 1 AND pickup_datetime < '2016-01-08'
 GROUP BY day ORDER BY day;
 </code></pre>
+
+

@@ -26,14 +26,60 @@ reference:
     </ol>
 </div>
 
-## Установка
+# Установка PostgreSQL
+
+## Установка из исходников
+
+<pre><code class="perl">
+$ wget https://ftp.postgresql.org/pub/source/v9.6.16/postgresql-9.6.16.tar.gz
+
+</code></pre>
+
+## Установка из пакетов
 
 В книге нет инструкции к установке, поэтому использовал статью - [Как установить и начать использовать PostgreSQL в Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/postgresql-ubuntu-16-04-ru)
 s
 Сама установка свелась к
 <pre><code class="shell">
 sudo apt-get update
-sudo apt-get install postgresql postgresql-contrib</code></pre>
+sudo apt-get install postgresql postgresql-contrib
+</code></pre>
+
+
+### Базовая установка postgres на ubuntu server 16.04.4
+
+<pre><code class="shell">
+sudo apt-get update
+sudo apt-get install postgresql postgresql-contrib
+</code></pre>
+
+#### Install 9.6
+
+<pre><code class="shell">
+sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -sc)-pgdg main"
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install postgresql-9.6
+</code></pre>
+
+
+# Создание кластера БД
+
+
+
+# Запуск и остановка сервера
+
+
+
+# Установка расширений
+
+
+
+
+
+
+
+## Вход в БД
 
 Зайти под пользователем postgres, в базу postgres
 <pre><code class="shell">

@@ -626,7 +626,7 @@ WHERE emp.deptno = dept.deptno AND emp.deptno = 10;
 ### Поиск одинаковых сток в двух таблицах
 
 <pre><code class="perl">
-CREATE VIEW table v_emp AS
+CREATE VIEW v_emp AS
 SELECT ename, job, sal FROM emp
 WHERE job = 'CLERK'
 ...
@@ -640,11 +640,9 @@ WHERE job = 'CLERK'
 
 ...
 
-SELECT *
-FROM emp
+SELECT * FROM emp
 WHERE (ename, job, sal) IN (
-  SELECT ename, job, sal
-  FROM emp
+  SELECT ename, job, sal FROM emp
   INTERSECT
   SELECT ename,job, sal FROM v_emp
 );
@@ -659,4 +657,36 @@ WHERE (ename, job, sal) IN (
 (4 rows)
 
 
+</code></pre>
+
+### Извлечение из одной таблицы значений, которых нет в другой таблице
+
+<i>Необходимо выяснить, каких отделов (если таковые имеются), представленных в таблице DEPT, нет в таблице EMP. В примере базы данных в таблице DEPT есть DEPTNO 40, которого нет в EMP; таким образом, результирующее множество должно быть следующим</i>
+
+<pre><code class="perl">
+DEPTNO
+-------------
+40
+</code></pre>
+
+<pre><code class="perl">
+select deptno from dept
+where deptno not in ( select deptno from emp )
+...
+ deptno 
+--------
+     40
+(1 строка)
+</code></pre>
+
+<pre><code class="perl">
+explain 
+select deptno from dept
+except
+select deptno from emp
+...
+ deptno 
+--------
+     40
+(1 строка)
 </code></pre>

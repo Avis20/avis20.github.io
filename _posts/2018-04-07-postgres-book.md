@@ -32,13 +32,120 @@ reference:
 
 <pre><code class="perl">
 $ wget https://ftp.postgresql.org/pub/source/v9.6.16/postgresql-9.6.16.tar.gz
-
+$ tar xzf postgresql-9.6.16.tar.gz
+$ ls -l
+total 23912
+drwxrwxr-x 6 vagrant vagrant     4096 Nov 11 22:23 postgresql-9.6.16
+-rw-rw-r-- 1 vagrant vagrant 24474740 Nov 11 22:23 postgresql-9.6.16.tar.gz
 </code></pre>
+
+### Создание конфигурации
+<pre><code class="perl">
+$ cd postgresql-9.6.16 && ./configure
+...
+</code></pre>
+
+В команде configure можно указать различные параметры конфигурации. Например:
+
+* --prefix - каталог установки, по умолчанию /usr/local/pgsql;
+* --enable-debug - для включения отладочной информации.
+
+### Сборка PostgreSQL
+Возможные варианты:
+
+* make - сборка только сервера
+* make world - сборка сервера, всех расширений и документации
+
+<pre><code class="perl">
+$ make
+make[2]: Leaving directory '/home/vagrant/postgresql-9.6.16/src/test/regress'
+make -C test/perl all
+make[2]: Entering directory '/home/vagrant/postgresql-9.6.16/src/test/perl'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/vagrant/postgresql-9.6.16/src/test/perl'
+make[1]: Leaving directory '/home/vagrant/postgresql-9.6.16/src'
+make -C config all
+make[1]: Entering directory '/home/vagrant/postgresql-9.6.16/config'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/vagrant/postgresql-9.6.16/config'
+All of PostgreSQL successfully made. Ready to install.
+</code></pre>
+
+### Установка
+
+<pre><code class="perl">
+$ sudo make install
+</code></pre>
+
+### Настройка пользователя `postgres`
+
+<pre><code class="perl">
+$ sudo adduser postgres -- создаем пользователя
+...
+$ sudo -iu postgres -- проверяем вход
+$ sudo mkdir /usr/local/pgsql/data/ -- создаем и присваиваем пользователя где будет храниться БД
+$ sudo chown postgres /usr/local/pgsql/data/
+$ tail -n 2 /home/postgres/.bashrc 
+export PGDATA=/usr/local/pgsql/data; -- уст. путь до данных
+PATH="/usr/local/pgsql/bin${PATH:+:${PATH}}"; export PATH; -- добавляем /usr/local/pgsql/bin для доступа к утилитам
+</code></pre>
+
+### Запуск кластера
+
+Ключ -k включает подсчет контрольной суммы страниц, что позволяет своевременно обнаруживать повреждение данных.
+<pre><code class="perl">
+$ initdb -k
+...
+Success. You can now start the database server using:
+    pg_ctl -D /usr/local/pgsql/data -l logfile start
+</code></pre>
+
+<pre><code class="perl">
+pg_ctl -D /usr/local/pgsql/data -l logfile start
+</code></pre>
+
+* -D - по умолчанию $PGDATA
+
+Проверяем
+<pre><code class="perl">
+$ psql -c 'select now();'
+              now              
+-------------------------------
+ 2019-12-05 20:18:56.048817+00
+(1 row)
+</code></pre>
+
+### Установка (сборка) расширений
+
+Список доступных расширений
+<pre><code class="perl">
+$ psql -c 'select * from pg_available_extensions;'
+  name   | default_version | installed_version |           comment            
+---------+-----------------+-------------------+------------------------------
+ plpgsql | 1.0             | 1.0               | PL/pgSQL procedural language
+(1 row)
+</code></pre>
+
+<a href="https://postgrespro.ru/docs/enterprise/9.6/contrib">Список модулей для 9.6</a>
+
+<pre><code class="perl">
+$ cd postgresql-9.6.16/contrib/pgcrypto/
+$ make
+...
+$ sudo make install
+...
+$ psql -c 'select * from pg_available_extensions;'
+   name   | default_version | installed_version |           comment            
+----------+-----------------+-------------------+------------------------------
+ plpgsql  | 1.0             | 1.0               | PL/pgSQL procedural language
+ pgcrypto | 1.3             |                   | cryptographic functions
+(2 rows)
+</code></pre>
+
 
 ## Установка из пакетов
 
 В книге нет инструкции к установке, поэтому использовал статью - [Как установить и начать использовать PostgreSQL в Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/postgresql-ubuntu-16-04-ru)
-s
 Сама установка свелась к
 <pre><code class="shell">
 sudo apt-get update
@@ -69,7 +176,14 @@ sudo apt-get install postgresql-9.6
 
 # Запуск и остановка сервера
 
+<pre><code class="perl">
+$ pg_ctl stop -m fast|smart|immediate
+</code></pre>
 
+Shutdown modes are:
+* fast        принудительно завершает сеансы и записывает на диск изменения из оперативной памяти;
+* smart       ожидает завершения всех сеансов и записывает на диск изменения из оперативной памяти;
+* immediate   принудительно завершает сеансы, при запуске потребуется восстановление.
 
 # Установка расширений
 

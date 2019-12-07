@@ -23,6 +23,7 @@ reference:
         <li>Страница (блок данных) - </li>
         <li>Кортеж (строка) - </li>
         <li>Пул соединений - это набор сессий, которые уже подключены. Его можно использовать для уменьшения нагрузки.(Пример <a href="#pool">pgbouncer</a>)</li>
+        <li><b>Транзакция</b> - логическая единица работы</li>
     </ol>
 </div>
 
@@ -37,6 +38,10 @@ $ ls -l
 total 23912
 drwxrwxr-x 6 vagrant vagrant     4096 Nov 11 22:23 postgresql-9.6.16
 -rw-rw-r-- 1 vagrant vagrant 24474740 Nov 11 22:23 postgresql-9.6.16.tar.gz
+</code></pre>
+
+<pre><code class="shell">
+$ sudo apt-get install make gcc libreadline-dev zlib1g-dev
 </code></pre>
 
 ### Создание конфигурации
@@ -170,9 +175,18 @@ sudo apt-get install postgresql-9.6
 </code></pre>
 
 
-# Создание кластера БД
+## Вход в БД
 
+Зайти под пользователем postgres, в базу postgres
+<pre><code class="shell">
+sudo -iu postgres
+...
+postgres@Postgres:~$ psql 
+psql (9.5.12)
+Type "help" for help.
 
+postgres=#
+</code></pre>
 
 # Запуск и остановка сервера
 
@@ -187,19 +201,6 @@ Shutdown modes are:
 
 
 
-
-## Вход в БД
-
-Зайти под пользователем postgres, в базу postgres
-<pre><code class="shell">
-sudo -iu postgres
-...
-postgres@Postgres:~$ psql 
-psql (9.5.12)
-Type "help" for help.
-
-postgres=#
-</code></pre>
 
 # Конфигурирование
 
@@ -387,7 +388,6 @@ Time: 0.509 ms
 postgres@postgres=# LOG:  parameter "work_mem" changed to "8MB"
 </code></pre>
 
-
 ## Открытие доступа к базе из вне
 
 <ol>
@@ -504,99 +504,26 @@ avis=# select version();
 
 
 
+# Многоверсионность
 
+Номер транзакции - отметка времени
 
-## Использование psql
+* xmin - номер транзакции которая создала версию строки
+* xmax - номер транзакции которая удалила версию строки
 
-Войти в интерактивный режим
-<pre><code class="sql">
-psql
-psql (9.5.12)
-Type "help" for help.
-
-postgres=# 
-</code></pre>
-
-Выйти из интерактивного режима `\q`
-<pre><code class="sql">
-postgres=# \quit
-# или
-postgres=# \q
-</code></pre>
-
-Выполнить команду `-c`
 <pre><code class="shell">
-psql -c "select current_time;"
-       timetz       
---------------------
- 18:07:26.839152+03
+create table t(
+  s text
+);
+
+insert into t values ('Первая версия'); <-- xmin=600, xmax=0
+# select *, xmin, xmax from t;
+       s       | xmin | xmax 
+---------------+------+------
+ Первая версия |  600 |    0
 (1 row)
 </code></pre>
 
-Загрузить скрипт и выполнить `-f`
-<pre><code class="shell">
-cat ./develop/learn/pgsql/book/script.sql
-CREATE TABLE "public".user (
-    name varchar(50) NOT NULL
-);
-
-psql -f ./develop/learn/pgsql/book/script.sql 
-CREATE TABLE
-</code></pre>
-
-Список баз данных на сервере `-l`
-
-<pre><code class="shell">
-psql -l
-                                  List of databases
-   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
------------+----------+----------+-------------+-------------+-----------------------
- avis      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
- postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
- template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
-           |          |          |             |             | postgres=CTc/postgres
- template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
-           |          |          |             |             | postgres=CTc/postgres
- test      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
-(5 rows)
-</code></pre>
-
-Включить/выключить режим вывода строк в столбик `\x`
-
-<pre><code class="sql">
-avis=# \d
-List of relations
--[ RECORD 1 ]--------
-Schema | public
-Name   | test1
-Type   | table
-Owner  | avis
--[ RECORD 2 ]--------
-Schema | public
-Name   | test1_id_seq
-Type   | sequence
-Owner  | avis
-
-</code></pre>
-
-Запрсить справку по командам `\h`
-<pre><code class="shell">
-avis=# \h delete
-Command:     DELETE
-Description: delete rows of a table
-Syntax:
-[ WITH [ RECURSIVE ] with_query [, ...] ]
-DELETE FROM [ ONLY ] table_name [ * ] [ [ AS ] alias ]
-    [ USING using_list ]
-    [ WHERE condition | WHERE CURRENT OF cursor_name ]
-    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
-</code></pre>
-
-Показать историю сделанных запросов `\s` 
-
-<pre><code class="sql">
-hello_postgres=# \s
-</code></pre>
 
 # Подключения
 
@@ -616,8 +543,6 @@ psql -U avis -h 192.168.16.102 -p 5432 avis
 <img src="/static/img/books/pgsql/pgadmin1.png" alt="">
 
 # Прочее
-
-Graphical Query Builder
 
 ## Сколько времени работает сервер?
 
@@ -993,162 +918,6 @@ postgres=# \l
 postgres=# 
 </code></pre>
 
-
-<h2 id="pool">Настройка пула соединений</h2>
-
-Установка pgbouncer
-
-<pre><code class="sql">
-sudo apt-get install pgbouncer
-</code></pre>
-
-Логи
-<pre><code class="sql">
-tail -f /var/log/postgresql/pgbouncer.log
-</code></pre>
-
-Конфиг. Основные параметры
-Указываем дефолтный сервер
-
-<pre><code class="sql">
-vim /etc/pgbouncer/pgbouncer.ini
-;; database name = connect string
-;;
-;; connect string params:
-;;   dbname= host= port= user= password=
-;;   client_encoding= datestyle= timezone=
-;;   pool_size= connect_query=
-[databases]
-
-* = host=localhost port=5432
-
-</code></pre>
-
-Настройка способа соединения
-* session - сессия удерживается клиентом пока не закроется соединение
-* transaction - соединение возвращается в общий пул после завершения транзакции
-* statment - соединение освобождается после выполнения каждого отдельного стейтмента
-<pre><code class="sql">
-; When server connection is released back to pool:
-;   session      - after client disconnects
-;   transaction  - after transaction finishes
-;   statement    - after statement finishes
-pool_mode = transaction
-</code></pre>
-
-Настройка пула
-Указываем максимальное кол-во одновременных клиентов
-<pre><code class="sql">
-; total number of clients that can connect
-max_client_conn = 1000
-</code></pre>
-
-<div class="warn">
-    <p>Значение max_client_conn, в pgbouncer, не должно превышать значения max_connections в postgres</p>
-</div>
-
-Настройки аунтефикации
-
-<pre><code class="sql">
-; any, trust, plain, crypt, md5
-auth_type = md5
-;auth_file = /8.0/main/global/pg_auth
-auth_file = /etc/pgbouncer/userlist.txt
-</code></pre>
-
-Доступ к админке pgbouncer
-
-<pre><code class="sql">
-admin_users = postgres
-</code></pre>
-
-<div class="warn">
-    <p>Параметр `auth_type`, по умолчанию trust, т.е. pgbouncer будет пускать в базу всех без пароля</p>
-</div>
-
-`/etc/pgbouncer/userlist.txt` содержит имена и пароли по которым pgbouncer подключается к БД.
-
-Его можно сделать вручную
-
-<pre><code class="sql">
-echo -n "test12avis" | md5sum | awk '{print "md5"}'
-md5b569f63db7a099534ce9ae73f0c16e70 
-
-sudo vim /etc/pgbouncer/userlist.txt
-"avis" "md5b569f63db7a099534ce9ae73f0c16e70"
-</code></pre>
-
-Либо с помощью psql
-
-<pre><code class="sql">
-postgres=# \o users.txt
-postgres=# \t
-Tuples only is on.
-postgres=# select '"' || rolname || '" "' || rolpassword || '"' from pg_authid;
-postgres=# \q
-postgres@ubuntu:~cat users.txt 
- 
- 
- "bar" "md55426824942db4253f87a1009fd5d2d4f"
- "avis" "md5b569f63db7a099534ce9ae73f0c16e70"
-
-</code></pre>
-
-Запуск pgbouncer
-
-<pre><code class="sql">
-sudo chown postgres:postgres pgbouncer.ini
-sudo -iu postgres
-pgbouncer -d /etc/pgbouncer/pgbouncer.ini
-2019-01-07 18:56:38.480 3914 LOG File descriptor limit: 1024 (H:1048576), max_client_conn: 1000, max fds possible: 1010
-</code></pre>
-
-Проверяем соединение
-
-<pre><code class="sql">
-psql -p 6432 -d dvdrental -U avis
-Password for user avis: 
-psql (9.5.12)
-Type "help" for help.
-
-dvdrental=# 
-
-tail -f /var/log/postgresql/pgbouncer.log
-2019-01-07 19:26:53.353 4581 LOG C-0xa6b550: (nodb)/(nouser)@unix(4592):6432 registered new auto-database: db = dvdrental
-2019-01-07 19:26:53.354 4581 LOG C-0xa6b550: dvdrental/avis@unix(4592):6432 login attempt: db=dvdrental user=avis tls=no
-2019-01-07 19:26:53.355 4581 LOG C-0xa6b550: dvdrental/avis@unix(4592):6432 closing because: client unexpected eof (age=0)
-2019-01-07 19:26:56.744 4581 LOG C-0xa6b550: dvdrental/avis@unix(4592):6432 login attempt: db=dvdrental user=avis tls=no
-2019-01-07 19:26:56.746 4581 LOG S-0xa70200: dvdrental/avis@127.0.0.1:5432 new connection to server (from 127.0.0.1:41824)
-</code></pre>
-
-Подключение к админке pgboucer-а
-
-<pre><code class="sql">
-sudo vim /etc/pgbouncer/pgbouncer.ini
-admin_users = pgbouncer
-
-echo -n "pgbpgbouncer" | md5sum | awk '{print "md5"}'
-md5def3006d3446137225418cbeafd31885
-sudo vim /etc/pgbouncer/users.txt
-"pgbouncer" "md5def3006d3446137225418cbeafd31885"
-
-sudo service pgbouncer restart
-
-psql -p 6432 -U pgbouncer pgbouncer
-Password for user pgbouncer: 
-psql (9.5.12, server 1.7/bouncer)
-Type "help" for help.
-
-pgbouncer=# 
-pgbouncer=# show version;
-NOTICE:  pgbouncer version 1.7 (Debian)
-SHOW
-</code></pre>
-
-<div class="warn"><p>Пароль - pgb</p></div>
-
-
-
 # Разное
 
 Чтобы по 100 раз не вводить пароль, можно сохранить параметры подключения <u>с машины с которой подкючаетесь</u> в ~/.pgpass  
@@ -1171,6 +940,7 @@ avis=#
 
 # Упр.
 
+## 1
 
 1. Запустите psql и проверьте информацию о текущем подключении.
 
@@ -1233,3 +1003,105 @@ Time: 0.709 ms
 \set PROMPT2 '%n@%/%R%# '
 </code></pre>
 
+
+
+## 2
+
+1. Создайте таблицу с одной строкой.
+<pre><code class="shell">
+create table t(
+  s text
+);
+insert into t values ('Первая версия');
+</code></pre>
+
+2. Начните первую транзакцию и выполните запрос к таблице.
+<pre><code class="shell">
+# begin ;
+BEGIN
+ubuntu_vb=# select * from t;
+       s       
+---------------
+ Первая версия
+(1 row)
+</code></pre>
+3. Во втором сеансе удалите строку и зафиксируйте изменения.
+<pre><code class="shell">
+# begin ;
+BEGIN
+ubuntu_vb=# delete from t;
+DELETE 1
+ubuntu_vb=# 
+</code></pre>
+4. Сколько строк увидит первая транзакция, выполнив тот же запрос повторно? Проверьте.
+
+<pre><code class="shell">
+# select *, xmin, xmax from t;
+       s       | xmin | xmax 
+---------------+------+------
+ Первая версия |  607 |  608
+(1 row)
+</code></pre>
+
+5. Завершите первую транзакцию.
+
+<pre><code class="shell">
+# commit ;
+COMMIT
+# select *, xmin, xmax from t;
+ s | xmin | xmax 
+---+------+------
+(0 rows)
+</code></pre>
+
+6. Повторите все то же самое, но пусть теперь транзакция работает на уровне изоляции repeatable read:
+`BEGIN ISOLATION LEVEL REPEATABLE READ;` Объясните отличия.
+
+tx1
+<pre><code class="shell">
+# select *, xmin, xmax from t;
+ s | xmin | xmax 
+---+------+------
+(0 rows)
+
+ubuntu_vb=# insert into t values ('Первая версия');
+INSERT 0 1
+ubuntu_vb=# BEGIN ISOLATION LEVEL REPEATABLE READ;
+BEGIN
+ubuntu_vb=# select *, xmin, xmax from t;
+       s       | xmin | xmax 
+---------------+------+------
+ Первая версия |  616 |    0
+(1 row)
+</code></pre>
+
+tx2
+<pre><code class="shell">
+ubuntu_vb=# begin ;
+BEGIN
+ubuntu_vb=# select *, xmin, xmax from t;
+       s       | xmin | xmax 
+---------------+------+------
+ Первая версия |  616 |    0
+(1 row)
+
+ubuntu_vb=# delete from t;
+DELETE 1
+ubuntu_vb=# commit ;
+COMMIT
+ubuntu_vb=# 
+</code></pre>
+
+tx1
+<pre><code class="shell">
+# select *, xmin, xmax from t;
+       s       | xmin | xmax 
+---------------+------+------
+ Первая версия |  616 |  617
+(1 row)
+ubuntu_vb=# update t set s = 'e21';
+ERROR:  could not serialize access due to concurrent update
+ubuntu_vb=# select *, xmin, xmax from t;
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ubuntu_vb=# 
+</code></pre>

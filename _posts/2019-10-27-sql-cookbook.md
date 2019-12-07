@@ -680,7 +680,6 @@ where deptno not in ( select deptno from emp )
 </code></pre>
 
 <pre><code class="perl">
-explain 
 select deptno from dept
 except
 select deptno from emp

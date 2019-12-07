@@ -47,8 +47,8 @@ $ cd postgresql-9.6.16 && ./configure
 
 В команде configure можно указать различные параметры конфигурации. Например:
 
-* --prefix - каталог установки, по умолчанию /usr/local/pgsql;
-* --enable-debug - для включения отладочной информации.
+* `--prefix` - каталог установки, по умолчанию /usr/local/pgsql;
+* `--enable-debug` - для включения отладочной информации.
 
 ### Сборка PostgreSQL
 Возможные варианты:
@@ -185,11 +185,6 @@ Shutdown modes are:
 * smart       ожидает завершения всех сеансов и записывает на диск изменения из оперативной памяти;
 * immediate   принудительно завершает сеансы, при запуске потребуется восстановление.
 
-# Установка расширений
-
-
-
-
 
 
 
@@ -205,6 +200,193 @@ Type "help" for help.
 
 postgres=#
 </code></pre>
+
+# Конфигурирование
+
+Основной файл конфигурации - `postgresql.conf`. Находиться в 
+<pre><code class="shell">
+$ psql 
+postgres@postgres=# show config_file 
+postgres-# ;
+              config_file              
+---------------------------------------
+ /usr/local/pgsql/data/postgresql.conf
+(1 row)
+</code></pre>
+
+При изменении без перезагрузки можно
+
+1.
+<pre><code class="shell">
+$ pg_ctl reload
+server signaled
+</code></pre>
+
+2.
+<pre><code class="shell">
+# select pg_reload_conf();
+LOG:  received SIGHUP, reloading configuration files
+ pg_reload_conf 
+----------------
+ t
+(1 row)
+</code></pre>
+
+3.
+<pre><code class="shell">
+$ kill -s HUP $( pidof postgres )  
+</code></pre>
+
+## Изменение параметров
+
+Для просмотра текущих параметров
+<pre><code class="shell">
+# select * from pg_settings where name like 'work_mem';
+-[ RECORD 1 ]---+----------------------------------------------------------------------------------------------------------------------
+name            | work_mem <-- Название
+setting         | 4096 <-- текущее значение
+unit            | kB
+category        | Resource Usage / Memory 
+short_desc      | Sets the maximum memory to be used for query workspaces.
+extra_desc      | This much memory can be used by each internal sort operation and hash table before switching to temporary disk files.
+context         | user <-- контекст который может изменить параметр
+vartype         | integer
+source          | default <-- источник. 
+min_val         | 64
+max_val         | 2147483647
+enumvals        | 
+boot_val        | 4096 <-- Значение по уполчанию
+reset_val       | 4096 <-- уст. значение
+sourcefile      | 
+sourceline      | 
+pending_restart | f
+
+</code></pre>
+
+Контексты
+* internal - нельзя изменить, никак...
+* postmaster - требуется перезапуск сервера
+* sighup - достаточно перечитать конфиг
+* superuser - может менять на ходу, супер пользователь, во время своего сеанса 
+* user - любой может изменить для своего сеанса
+
+Пример
+
+При дублировании параметров в конфиге, примениться последний
+<pre><code class="shell">
+# select sourceline, name, setting, applied from pg_file_settings where name like 'work_mem';
+ sourceline |   name   | setting | applied 
+------------+----------+---------+---------
+        647 | work_mem | 12MB    | f
+        648 | work_mem | 8MB     | t
+(2 rows)
+</code></pre>
+
+Флаг applied говорит какой из параметров примениться
+
+<pre><code class="shell">
+# select pg_reload_conf();
+LOG:  received SIGHUP, reloading configuration files
+LOG:  parameter "work_mem" changed to "8MB"
+ pg_reload_conf 
+----------------
+ t
+(1 row)
+</code></pre>
+
+<pre><code class="shell">
+# select * from pg_settings where name like 'work_mem';
+-[ RECORD 1 ]---+----------------------------------------------------------------------------------------------------------------------
+name            | work_mem
+setting         | 8192
+unit            | kB
+category        | Resource Usage / Memory
+short_desc      | Sets the maximum memory to be used for query workspaces.
+extra_desc      | This much memory can be used by each internal sort operation and hash table before switching to temporary disk files.
+context         | user
+vartype         | integer
+source          | configuration file
+min_val         | 64
+max_val         | 2147483647
+enumvals        | 
+boot_val        | 4096
+reset_val       | 8192
+sourcefile      | /usr/local/pgsql/data/postgresql.conf
+sourceline      | 648
+pending_restart | f
+</code></pre>
+
+## Добавление/удаление из `postgresql.auto.conf`
+
+Изменение postgresql.auto.conf
+<pre><code class="shell">
+# alter system set work_mem to '16MB';
+ALTER SYSTEM
+</code></pre>
+
+<pre><code class="shell">
+# select sourcefile, sourceline, name, setting, applied from pg_file_settings where name like 'work_mem';
+                 sourcefile                 | sourceline |   name   | setting | appl
+--------------------------------------------+------------+----------+---------+-----
+ /usr/local/pgsql/data/postgresql.conf      |        647 | work_mem | 12MB    | f
+ /usr/local/pgsql/data/postgresql.conf      |        648 | work_mem | 8MB     | f
+ /usr/local/pgsql/data/postgresql.auto.conf |          3 | work_mem | 16MB    | t
+(3 rows)
+</code></pre>
+
+<div class="warn">
+  <p>Для применения параметра нужно перезагрузить конфиг</p>
+<pre><code class="shell">
+# show work_mem;
+ work_mem 
+----------
+ 8MB
+(1 row)
+</code></pre>
+</div>
+
+<pre><code class="shell">
+# select pg_reload_conf();
+LOG:  received SIGHUP, reloading configuration files
+LOG:  parameter "work_mem" changed to "16MB"
+ pg_reload_conf 
+----------------
+ t
+(1 row)
+
+Time: 1.770 ms
+postgres@postgres=# show work_mem;
+ work_mem 
+----------
+ 16MB
+(1 row)
+
+Time: 1.496 ms
+</code></pre>
+
+Для удаления `alter system` используется `alter system reset`
+<pre><code class="shell">
+# alter system reset work_mem;
+ALTER SYSTEM
+Time: 10.622 ms
+postgres@postgres=# show work_mem;
+ work_mem 
+----------
+ 16MB
+(1 row)
+
+Time: 0.307 ms
+postgres@postgres=# select pg_reload_conf();
+LOG:  received SIGHUP, reloading configuration files
+ pg_reload_conf 
+----------------
+ t
+(1 row)
+
+Time: 0.509 ms
+postgres@postgres=# LOG:  parameter "work_mem" changed to "8MB"
+</code></pre>
+
 
 ## Открытие доступа к базе из вне
 
@@ -985,3 +1167,69 @@ Type "help" for help.
 
 avis=# 
 </code></pre>
+
+
+# Упр.
+
+
+1. Запустите psql и проверьте информацию о текущем подключении.
+
+<pre><code class="shell">
+postgres=# \conninfo 
+You are connected to database "postgres" as user "postgres" via socket in "/tmp" at port "5432".
+</code></pre>
+
+2. Выведите строки таблицы pg_tables.
+<pre><code class="shell">
+postgres=# select schemaname, tablename from pg_tables limit 4;
+ schemaname |    tablename    
+------------+-----------------
+ pg_catalog | pg_statistic
+ pg_catalog | pg_type
+ pg_catalog | pg_authid
+ pg_catalog | pg_user_mapping
+(4 rows)
+</code></pre>
+
+3. Установите команду `less -XS` для постраничного просмотра и еще раз выведите все строки pg_tables.
+<pre><code class="shell">
+postgres=# \setenv PAGER 'less -XS'
+</code></pre>
+
+Для постоянного включения
+<pre><code class="shell">
+postgres@vagrant:~$ cat ~/.psqlrc 
+\pset pager on
+\setenv PAGER 'less -XS'
+postgres@vagrant:~$ 
+</code></pre>
+
+4. Настройте psql так, чтобы для каждой команды печаталось время ее выполнения. Убедитесь, что при повторном запуске эта настройка сохраняется.
+
+<pre><code class="shell">
+$ cat ~/.psqlrc 
+\timing
+...
+$ psql 
+Pager is used for long output.
+Timing is on.
+psql (9.6.16)
+Type "help" for help.
+
+postgres=# select 1;
+ ?column? 
+----------
+        1
+(1 row)
+
+Time: 0.709 ms
+</code></pre>
+
+5. Приглашение по умолчанию показывает имя базы данных. Настройте приглашение так, чтобы дополнительно
+выводилась информация о пользователе: роль@база=#
+
+<pre><code class="shell">
+\set PROMPT1 '%n@%/%R%# '
+\set PROMPT2 '%n@%/%R%# '
+</code></pre>
+

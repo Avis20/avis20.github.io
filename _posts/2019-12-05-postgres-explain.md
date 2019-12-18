@@ -131,3 +131,64 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM foo;
 </code></pre>
 
 * Buffers: shared hit=32 - кол-во блоков считанных с кэша 
+
+## Соединение с помощью вложенных циклов `NESTED LOOPS JOIN`
+
+<pre><code class="shell">
+EXPLAIN (VERBOSE, ANALYZE, BUFFERS)
+select t1.x, t2.y
+from table1 t1, table2 t2
+where t1.z = 'ABC';
+...
+                                                     QUERY PLAN                                                     
+--------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.00..130.19 rows=6780 width=8) (actual time=0.004..0.004 rows=0 loops=1)
+   Output: t1.x, t2.y
+   ->  Seq Scan on public.table2 t2  (cost=0.00..21.30 rows=1130 width=4) (actual time=0.003..0.003 rows=0 loops=1)
+         Output: t2.id, t2.x, t2.y, t2.z
+   ->  Materialize  (cost=0.00..24.16 rows=6 width=4) (never executed)
+         Output: t1.x
+         ->  Seq Scan on public.table1 t1  (cost=0.00..24.12 rows=6 width=4) (never executed)
+               Output: t1.x
+               Filter: (t1.z = 'ABC'::text)
+ Planning time: 0.236 ms
+ Execution time: 0.041 ms
+(11 строк)
+</code></pre>
+
+### Алгоритм
+1. Определяется ведущая таблица
+2. Каждая строка ведущей таб. сравнивается, по условию выбора с внешней таб.
+3. 
+
+## Хеш-соединение `HASH JOIN`
+
+1. Таблица с меньшим кол-вом строк выбирается как конструктивная
+2. Формируется хеш таблица с колонкой по которым выполняется операция соединения
+3. Для внешней таб. также выполняется функция хеширования на атрибуте соединения
+4. Выполняется поиск 
+
+<pre><code class="shell">
+EXPLAIN (VERBOSE, ANALYZE, BUFFERS)
+select t1.x, t2.y
+from table1 t1, table2 t2
+where t1.id = t2.id;
+...
+                                                     QUERY PLAN                                                     
+--------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=24.20..50.08 rows=34 width=8) (actual time=0.005..0.005 rows=0 loops=1)
+   Output: t1.x, t2.y
+   Hash Cond: (t2.id = t1.id)
+   ->  Seq Scan on public.table2 t2  (cost=0.00..21.30 rows=1130 width=8) (actual time=0.003..0.003 rows=0 loops=1)
+         Output: t2.id, t2.x, t2.y, t2.z
+   ->  Hash  (cost=24.12..24.12 rows=6 width=8) (never executed)
+         Output: t1.x, t1.id
+         ->  Seq Scan on public.table1 t1  (cost=0.00..24.12 rows=6 width=8) (never executed)
+               Output: t1.x, t1.id
+               Filter: (t1.z = 'ABC'::text)
+ Planning time: 0.295 ms
+ Execution time: 0.044 ms
+(12 строк)
+</code></pre>
+
+## Соединение сортировкой и слиянием `SORT MERGE JOIN`

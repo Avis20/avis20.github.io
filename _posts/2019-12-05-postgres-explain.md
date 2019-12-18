@@ -129,3 +129,5 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM foo;
  Execution time: 231.323 ms
 (4 строки)
 </code></pre>
+
+* Buffers: shared hit=32 - кол-во блоков считанных с кэша 

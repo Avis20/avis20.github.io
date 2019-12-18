@@ -81,3 +81,14 @@ reference:
     <p>На картинке не правильная интсрукция. Но ошибка правильная</p>
 </div>
 <img src="/static/img/bugs/virtual_box.png" alt="">
+
+
+## Сеть
+
+<pre><code class="shell">
+avis@ubuntu:~$ cat /etc/network/interfaces
+auto enp0s8
+iface enp0s8 inet static
+address 192.168.56.101
+netmask 255.255.255.0
+</code></pre>

@@ -14,19 +14,19 @@ reference:
 
 Установка pgbouncer
 
-<pre><code class="sql">
+<pre><code class="shell">
 sudo apt-get install pgbouncer
 </code></pre>
 
 Логи
-<pre><code class="sql">
+<pre><code class="shell">
 tail -f /var/log/postgresql/pgbouncer.log
 </code></pre>
 
 Конфиг. Основные параметры
 Указываем дефолтный сервер
 
-<pre><code class="sql">
+<pre><code class="shell">
 vim /etc/pgbouncer/pgbouncer.ini
 ;; database name = connect string
 ;;
@@ -44,7 +44,7 @@ vim /etc/pgbouncer/pgbouncer.ini
 * session - сессия удерживается клиентом пока не закроется соединение
 * transaction - соединение возвращается в общий пул после завершения транзакции
 * statment - соединение освобождается после выполнения каждого отдельного стейтмента
-<pre><code class="sql">
+<pre><code class="shell">
 ; When server connection is released back to pool:
 ;   session      - after client disconnects
 ;   transaction  - after transaction finishes
@@ -54,7 +54,7 @@ pool_mode = transaction
 
 Настройка пула
 Указываем максимальное кол-во одновременных клиентов
-<pre><code class="sql">
+<pre><code class="shell">
 ; total number of clients that can connect
 max_client_conn = 1000
 </code></pre>
@@ -65,7 +65,7 @@ max_client_conn = 1000
 
 Настройки аунтефикации
 
-<pre><code class="sql">
+<pre><code class="shell">
 ; any, trust, plain, crypt, md5
 auth_type = md5
 ;auth_file = /8.0/main/global/pg_auth
@@ -74,7 +74,7 @@ auth_file = /etc/pgbouncer/userlist.txt
 
 Доступ к админке pgbouncer
 
-<pre><code class="sql">
+<pre><code class="shell">
 admin_users = postgres
 </code></pre>
 
@@ -86,7 +86,7 @@ admin_users = postgres
 
 Его можно сделать вручную
 
-<pre><code class="sql">
+<pre><code class="shell">
 echo -n "test12avis" | md5sum | awk '{print "md5"}'
 md5b569f63db7a099534ce9ae73f0c16e70 
 
@@ -96,7 +96,7 @@ sudo vim /etc/pgbouncer/userlist.txt
 
 Либо с помощью psql
 
-<pre><code class="sql">
+<pre><code class="shell">
 postgres=# \o users.txt
 postgres=# \t
 Tuples only is on.
@@ -112,7 +112,7 @@ postgres@ubuntu:~cat users.txt
 
 Запуск pgbouncer
 
-<pre><code class="sql">
+<pre><code class="shell">
 sudo chown postgres:postgres pgbouncer.ini
 sudo -iu postgres
 pgbouncer -d /etc/pgbouncer/pgbouncer.ini
@@ -121,7 +121,7 @@ pgbouncer -d /etc/pgbouncer/pgbouncer.ini
 
 Проверяем соединение
 
-<pre><code class="sql">
+<pre><code class="shell">
 psql -p 6432 -d dvdrental -U avis
 Password for user avis: 
 psql (9.5.12)
@@ -139,7 +139,7 @@ tail -f /var/log/postgresql/pgbouncer.log
 
 Подключение к админке pgboucer-а
 
-<pre><code class="sql">
+<pre><code class="shell">
 sudo vim /etc/pgbouncer/pgbouncer.ini
 admin_users = pgbouncer
 

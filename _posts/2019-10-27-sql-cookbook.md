@@ -719,3 +719,57 @@ table emp_bonus;
 (3 строки)
 </code></pre>
 
+Исходный запрос:
+<pre><code class="shell">
+SELECT e.empno, e.ename, d.loc
+FROM emp e, dept d
+WHERE e.deptno = d.deptno
+...
+ empno | ename  |   loc    
+-------+--------+----------
+  7934 | MILLER | NEW YORK
+  7839 | KING   | NEW YORK
+  7782 | CLARK  | NEW YORK
+  7902 | FORD   | DALLAS
+  7876 | ADAMS  | DALLAS
+  7788 | SCOTT  | DALLAS
+  7566 | JONES  | DALLAS
+  7369 | SMITH  | DALLAS
+  7900 | JAMES  | CHICAGO
+  7844 | TURNER | CHICAGO
+  7698 | BLAKE  | CHICAGO
+  7654 | MARTIN | CHICAGO
+  7521 | WARD   | CHICAGO
+  7499 | ALLEN  | CHICAGO
+(14 строк)
+</code></pre>
+
+<pre><code class="shell">
+select e.empno, e.ename, d.loc, b.received
+from emp e
+join dept d on d.deptno = e.deptno
+left join emp_bonus b on b.empno = e.empno
+order by 3
+...
+ empno | ename  |   loc    |  received  
+-------+--------+----------+------------
+  7900 | JAMES  | CHICAGO  | 2019-10-01
+  7521 | WARD   | CHICAGO  | 
+  7844 | TURNER | CHICAGO  | 
+  7499 | ALLEN  | CHICAGO  | 
+  7654 | MARTIN | CHICAGO  | 
+  7698 | BLAKE  | CHICAGO  | 
+  7369 | SMITH  | DALLAS   | 2019-10-01
+  7566 | JONES  | DALLAS   | 
+  7788 | SCOTT  | DALLAS   | 2019-10-01
+  7876 | ADAMS  | DALLAS   | 
+  7902 | FORD   | DALLAS   | 
+  7782 | CLARK  | NEW YORK | 
+  7839 | KING   | NEW YORK | 
+  7934 | MILLER | NEW YORK | 
+(14 строк)
+</code></pre>
+
+
+
+

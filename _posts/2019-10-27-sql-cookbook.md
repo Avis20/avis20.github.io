@@ -690,7 +690,7 @@ select deptno from emp
 (1 строка)
 </code></pre>
 
-### Независимое добавление объединений в запрос
+### Независимое добавление объединений в запрос `LEFT JOIN`
 
 <i>Необходимо получить имена всех служащих, местонахождение отделов, в которых они работают, и даты выдачи им премий. Для
 выполнения этой задачи существует таблица EMP_BONUS со следующими данными:</i>
@@ -771,5 +771,176 @@ order by 3
 </code></pre>
 
 
+### Выявление одинаковых данных в двух таблицах
+
+<i>Требуется выяснить, имеются ли в двух таблицах (или представлениях) одинаковые данные</i>
+<pre><code class="shell">
+create view V as
+select * from emp where deptno != 10
+union all
+select * from emp where ename = 'WARD'
+</code></pre>
+
+<pre><code class="shell">
+table V;
+...
+ empno | ename  |   job    | mgr  |  hiredate  |   sal   |  comm   | deptno 
+-------+--------+----------+------+------------+---------+---------+--------
+  7369 | SMITH  | CLERK    | 7902 | 1980-12-17 |  800.00 |         |     20
+  7499 | ALLEN  | SALESMAN | 7698 | 1981-02-20 | 1600.00 |  300.00 |     30
+  7521 | WARD   | SALESMAN | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30
+  7566 | JONES  | MANAGER  | 7839 | 1981-04-02 | 2975.00 |         |     20
+  7654 | MARTIN | SALESMAN | 7698 | 1981-09-28 | 1250.00 | 1400.00 |     30
+  7698 | BLAKE  | MANAGER  | 7839 | 1981-05-01 | 2850.00 |         |     30
+  7788 | SCOTT  | ANALYST  | 7566 | 1982-12-09 | 3000.00 |         |     20
+  7844 | TURNER | SALESMAN | 7698 | 1981-09-08 | 1500.00 |    0.00 |     30
+  7876 | ADAMS  | CLERK    | 7788 | 1983-01-12 | 1100.00 |         |     20
+  7900 | JAMES  | CLERK    | 7698 | 1981-12-03 |  950.00 |         |     30
+  7902 | FORD   | ANALYST  | 7566 | 1981-12-03 | 3000.00 |         |     20
+  7521 | WARD   | SALESMAN | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30
+(12 строк)
+</code></pre>
+
+<i>Должно быть получено следующее результирующее множество:</i>
+<pre><code class="shell">
+
+</code></pre>
+
+<pre><code class="shell">
+explain
+select empno, ename, job, mgr, hiredate, sal, comm, deptno, count(*) as cnt from V
+group by empno, ename, job, mgr, hiredate, sal, comm, deptno
+except
+select *, count(*) as cnt from emp
+group by empno
+</code></pre>
+
+### Выборка...
+
+<i>Требуется возвратить имя служащего 10-го отдела и местонахождение отдела</i>
+
+<pre><code class="shell">
+select e.ename, d.loc
+from emp as e
+join dept as d on d.deptno = e.deptno
+where e.deptno = 10
+...
+ ename  |   loc    
+--------+----------
+ CLARK  | NEW YORK
+ KING   | NEW YORK
+ MILLER | NEW YORK
+(3 строки)
+</code></pre>
+
+<pre><code class="shell">
+select e.ename, d.loc
+from emp as e, dept as d
+where e.deptno = 10 and e.deptno = d.deptno
+...
+ ename  |   loc    
+--------+----------
+ CLARK  | NEW YORK
+ KING   | NEW YORK
+ MILLER | NEW YORK
+(3 строки)
+</code></pre>
+
+<pre><code class="shell">
+explain analyse
+select e.ename, d.loc
+from emp as e
+join dept as d on d.deptno = e.deptno
+where e.deptno = 10
+...
+                                               QUERY PLAN                                               
+--------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.00..18.96 rows=3 width=82) (actual time=0.029..0.039 rows=3 loops=1)
+   ->  Seq Scan on emp e  (cost=0.00..1.18 rows=1 width=50) (actual time=0.015..0.017 rows=3 loops=1)
+         Filter: (deptno = '10'::numeric)
+         Rows Removed by Filter: 11
+   ->  Seq Scan on dept d  (cost=0.00..17.75 rows=3 width=56) (actual time=0.005..0.006 rows=1 loops=3)
+         Filter: (deptno = '10'::numeric)
+         Rows Removed by Filter: 3
+ Planning time: 0.405 ms
+ Execution time: 0.073 ms
+(9 строк)
 
 
+explain analyse
+select e.ename, d.loc
+from emp as e, dept as d
+where e.deptno = 10 and e.deptno = d.deptno
+...
+                                               QUERY PLAN                                               
+--------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.00..18.96 rows=3 width=82) (actual time=0.033..0.044 rows=3 loops=1)
+   ->  Seq Scan on emp e  (cost=0.00..1.18 rows=1 width=50) (actual time=0.016..0.018 rows=3 loops=1)
+         Filter: (deptno = '10'::numeric)
+         Rows Removed by Filter: 11
+   ->  Seq Scan on dept d  (cost=0.00..17.75 rows=3 width=56) (actual time=0.006..0.007 rows=1 loops=3)
+         Filter: (deptno = '10'::numeric)
+         Rows Removed by Filter: 3
+ Planning time: 0.401 ms
+ Execution time: 0.099 ms
+(9 строк)
+</code></pre>
+
+### Объединение при агрегатных функций
+
+<i>Найти сумму заработных плат служащих 10-го отдела, а также сумму их премий</i>
+
+<pre><code class="shell">
+insert into emp_bonus values
+( 7934, '2019-12-01', 1),
+( 7934, '2019-12-11', 2),
+( 7839, '2019-12-21', 3),
+( 7782, '2019-12-23', 1);
+table emp_bonus;
+...
+ empno |  received  | type 
+-------+------------+------
+  7934 | 2019-12-01 |    1
+  7934 | 2019-12-11 |    2
+  7839 | 2019-12-21 |    3
+  7782 | 2019-12-23 |    1
+(4 строки)
+</code></pre>
+
+Вариант 1:
+<pre><code class="shell">
+select deptno, sum(sal), sum(bonus)
+from (
+  select e.empno, e.ename, e.sal, e.deptno,
+  sum( e.sal * ( case when eb.type = 1 then 0.1 when eb.type = 2 then 0.2 when eb.type = 3 then 0.3 else 0 end ) ) as bonus 
+  from emp as e
+  left join emp_bonus eb on eb.empno = e.empno
+  where e.deptno = 10
+  group by e.empno, e.ename, e.sal, e.deptno
+) as x
+group by deptno
+...
+ deptno |   sum   |   sum    
+--------+---------+----------
+     10 | 8750.00 | 2135.000
+(1 строка)
+</code></pre>
+
+Вариант 2
+<pre><code class="shell">
+select d.deptno, d.total_sal,
+sum( e.sal * ( case when eb.type = 1 then 0.1 when eb.type = 2 then 0.2 when eb.type = 3 then 0.3 else 0 end ) ) as bonus
+from (
+  select deptno, sum(sal) as total_sal
+  from emp 
+  where deptno = 10
+  group by deptno
+) as d, emp as e
+join emp_bonus as eb on eb.empno = e.empno
+group by d.deptno, d.total_sal
+...
+ deptno | total_sal |  bonus   
+--------+-----------+----------
+     10 |   8750.00 | 2135.000
+(1 строка)
+</code></pre>

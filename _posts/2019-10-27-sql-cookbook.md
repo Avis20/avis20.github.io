@@ -38,7 +38,7 @@ sql_cookbook=# SELECT * FROM emp;
 (14 строк)
 </code></pre>
 
-<div class="warn">
+<div class="sql">
     <p>Также есть сокращенная форма</p>
 <pre><code class="sql">
 sql_cookbook=# table emp;
@@ -473,10 +473,10 @@ order by replace( translate(data, '0123456789', '##########'), '#', '')
 (14 строк)
 </code></pre>
 
-<div class="info">
+<div class="sql">
     <a href="http://www.postgresqltutorial.com/postgresql-translate/">postgresql-translate</a>
     <p><b>translate(string text, from text, to text)</b> - Заменяет символы в string, найденные в наборе from, на соответствующие символы в множестве to. Если строка from длиннее to, найденные в исходной строке лишние символы from удаляются.</p>
-    <pre><code class="perl">
+    <pre><code class="sql">
 SELECT TRANSLATE('12345', '134', 'ax')
 ...
  translate 
@@ -505,7 +505,7 @@ SELECT TRANSLATE('apple,orange,banana', ',', ';');
 ### Обработка значений NULL при сортировке
 
 <i>определенные значения comm сортируются по возврастанию, после них располагаются все строки с неопределенными значениями</i>
-<pre><code class="perl">
+<pre><code class="sql">
 SELECT ename, sal, comm FROM (
     SELECT ename, sal, comm, (
             CASE
@@ -542,7 +542,7 @@ ORDER BY is_null DESC, comm
 <i>
 Eсли значение JOB - "SALESMAN", сортировка должна осуществляться по столбцу COMM; в противном случае сортируем по SAL
 </i>
-<pre><code class="perl">
+<pre><code class="sql">
 SELECT ename, sal, job, comm
 FROM emp
 ORDER BY
@@ -577,7 +577,7 @@ END;
 вывести на экран имена и номер отдела служащих 10!го отдела, хранящиеся в таблице EMP, а также названия и номера всех отделов из таблицы DEPT
 </i>
 
-<pre><code class="perl">
+<pre><code class="sql">
 SELECT ename, deptno
 FROM emp
 WHERE deptno = 10
@@ -610,7 +610,7 @@ FROM dept;
 Вывести имена всех служащих 10-го отдела, а так же местонахождение отдела для каждого служащего
 </i>
 
-<pre><code class="perl">
+<pre><code class="sql">
 SELECT ename, loc
 FROM emp, dept
 WHERE emp.deptno = dept.deptno AND emp.deptno = 10;
@@ -625,7 +625,7 @@ WHERE emp.deptno = dept.deptno AND emp.deptno = 10;
 
 ### Поиск одинаковых сток в двух таблицах
 
-<pre><code class="perl">
+<pre><code class="sql">
 CREATE VIEW v_emp AS
 SELECT ename, job, sal FROM emp
 WHERE job = 'CLERK'
@@ -663,13 +663,13 @@ WHERE (ename, job, sal) IN (
 
 <i>Необходимо выяснить, каких отделов (если таковые имеются), представленных в таблице DEPT, нет в таблице EMP. В примере базы данных в таблице DEPT есть DEPTNO 40, которого нет в EMP; таким образом, результирующее множество должно быть следующим</i>
 
-<pre><code class="perl">
+<pre><code class="sql">
 DEPTNO
 -------------
 40
 </code></pre>
 
-<pre><code class="perl">
+<pre><code class="sql">
 select deptno from dept
 where deptno not in ( select deptno from emp )
 ...
@@ -679,7 +679,7 @@ where deptno not in ( select deptno from emp )
 (1 строка)
 </code></pre>
 
-<pre><code class="perl">
+<pre><code class="sql">
 select deptno from dept
 except
 select deptno from emp
@@ -695,7 +695,7 @@ select deptno from emp
 <i>Необходимо получить имена всех служащих, местонахождение отделов, в которых они работают, и даты выдачи им премий. Для
 выполнения этой задачи существует таблица EMP_BONUS со следующими данными:</i>
 
-<pre><code class="shell">
+<pre><code class="sql">
 create table emp_bonus (
   empno int,
   received date,
@@ -708,7 +708,7 @@ insert into emp_bonus (empno, received, type) values
 (7788, '2019-10-01', 3);
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 table emp_bonus;
 ...
  empno |  received  | type 
@@ -720,7 +720,7 @@ table emp_bonus;
 </code></pre>
 
 Исходный запрос:
-<pre><code class="shell">
+<pre><code class="sql">
 SELECT e.empno, e.ename, d.loc
 FROM emp e, dept d
 WHERE e.deptno = d.deptno
@@ -744,7 +744,7 @@ WHERE e.deptno = d.deptno
 (14 строк)
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 select e.empno, e.ename, d.loc, b.received
 from emp e
 join dept d on d.deptno = e.deptno
@@ -774,14 +774,14 @@ order by 3
 ### Выявление одинаковых данных в двух таблицах
 
 <i>Требуется выяснить, имеются ли в двух таблицах (или представлениях) одинаковые данные</i>
-<pre><code class="shell">
+<pre><code class="sql">
 create view V as
 select * from emp where deptno != 10
 union all
 select * from emp where ename = 'WARD'
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 table V;
 ...
  empno | ename  |   job    | mgr  |  hiredate  |   sal   |  comm   | deptno 
@@ -802,11 +802,11 @@ table V;
 </code></pre>
 
 <i>Должно быть получено следующее результирующее множество:</i>
-<pre><code class="shell">
+<pre><code class="sql">
 
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 explain
 select empno, ename, job, mgr, hiredate, sal, comm, deptno, count(*) as cnt from V
 group by empno, ename, job, mgr, hiredate, sal, comm, deptno
@@ -819,7 +819,7 @@ group by empno
 
 <i>Требуется возвратить имя служащего 10-го отдела и местонахождение отдела</i>
 
-<pre><code class="shell">
+<pre><code class="sql">
 select e.ename, d.loc
 from emp as e
 join dept as d on d.deptno = e.deptno
@@ -833,7 +833,7 @@ where e.deptno = 10
 (3 строки)
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 select e.ename, d.loc
 from emp as e, dept as d
 where e.deptno = 10 and e.deptno = d.deptno
@@ -846,7 +846,7 @@ where e.deptno = 10 and e.deptno = d.deptno
 (3 строки)
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 explain analyse
 select e.ename, d.loc
 from emp as e
@@ -890,7 +890,7 @@ where e.deptno = 10 and e.deptno = d.deptno
 
 <i>Найти сумму заработных плат служащих 10-го отдела, а также сумму их премий</i>
 
-<pre><code class="shell">
+<pre><code class="sql">
 insert into emp_bonus values
 ( 7934, '2019-12-01', 1),
 ( 7934, '2019-12-11', 2),
@@ -908,7 +908,7 @@ table emp_bonus;
 </code></pre>
 
 Вариант 1:
-<pre><code class="shell">
+<pre><code class="sql">
 select deptno, sum(sal), sum(bonus)
 from (
   select e.empno, e.ename, e.sal, e.deptno,
@@ -927,7 +927,7 @@ group by deptno
 </code></pre>
 
 Вариант 2
-<pre><code class="shell">
+<pre><code class="sql">
 select d.deptno, d.total_sal,
 sum( e.sal * ( case when eb.type = 1 then 0.1 when eb.type = 2 then 0.2 when eb.type = 3 then 0.3 else 0 end ) ) as bonus
 from (

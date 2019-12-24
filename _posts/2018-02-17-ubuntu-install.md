@@ -41,29 +41,29 @@ reference:
 #### Настройка автозапуска приложений
 
 Актуально только после установки всех программ!
-```
+<pre><code class="shell">
 gnome-session-properties
-```
+</code></pre>
 
 ## Установка программ
 
 ### Через скрипт
 
 1. Клонируем репу
-```
+<pre><code class="shell">
 sudo apt-get install git;
 cd ~; mkdir develop; cd ~/develop
 # При клонировании нужно ввести логин, пароль
 git clone https://Avis20@bitbucket.org/Avis20/config2.git
 cd config2; bash install2.sh
-```
+</code></pre>
 
 TODO: Пока не реализовано! простая установка - ```install2.sh```
 
 2. Выбираем что нужно установить. Нужно отметить - или + в начале строки
-```
+<pre><code class="shell">
 vi programm_list
-```
+</code></pre>
 
 ### По одному
 
@@ -72,88 +72,89 @@ vi programm_list
 #### git
 
 git есть в стандартной репе, так что просто
-```
+<pre><code class="shell">
 sudo apt-get install git
-```
+</code></pre>
 
 #### vim
 
 Обычно:
-```
+<pre><code class="shell">
 sudo apt-get install vim
-```
+</code></pre>
 
 Но если какаята хрень то - 
 
-```
+<pre><code class="shell">
 sudo add-apt-repository ppa:fcwu-tw/ppa
 sudo apt-get update
 sudo apt-get install vim 
-```
+</code></pre>
 
 - для > ubuntu 14... по умолчанию установлена vim-tiny   
 
 #### sshfs
 
 Для маутинга серверной директории
-```
+<pre><code class="shell">
 sudo apt-get install sshfs
-```
+</code></pre>
 
 #### mc
-
-```
+<pre><code class="shell">
 sudo apt-get install mc
-```
+</code></pre>
 
 #### htop
 
-```
+<pre><code class="shell">
 sudo apt-get install htop
-```
+</code></pre>
 
 #### perl модули
 ##### uni::perl
 
-```
+<pre><code class="shell">
 curl -L cpanmin.us | perl - -l $HOME/perl5 App::cpanminus uni::perl
-```
+</code></pre>
 
 ##### lib::abs
-```
+
+<pre><code class="shell">
 apt search lib-abs
 liblib-abs-perl/xenial,xenial,now 0.93-1 all [установлен]
   module to make relative path absolute to caller
 
 avis@avis-PC:~$ sudo apt-get install liblib-abs-perl/xenial
-```
+</code></pre>
 
 #### nodejs + browser-sync
-```
+
+<pre><code class="shell">
 sudo apt-get install nodejs
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 sudo npm install --global npm
 sudo npm install -g browser-sync
-```
+</code></pre>
 
 #### chrome
 
-```
+<pre><code class="shell">
 sudo wget -qO - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 sudo echo "deb http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee "/etc/apt/sources.list.d/google.list"
 sudo sed -i -e 's/deb http/deb [arch=amd64] http/' "/etc/apt/sources.list.d/google.list"
 sudo apt-get update
 sudo apt-get install google-chrome-stable
-```
+</code></pre>
 
 #### sublime-text
 
-```
+<pre><code class="shell">
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 sudo apt-get update
 sudo apt-get install sublime-text
-```
+</code></pre>
 
 ##### Плагины для sublime-text
 
@@ -168,16 +169,17 @@ sudo apt-get install sublime-text
 
 #### vlc
 
-```
+<pre><code class="shell">
 sudo apt-get update && sudo apt-get install vlc browser-plugin-vlc
-```
+</code></pre>
 
 ### Редко используемые
 
 #### unrar
-```
+
+<pre><code class="shell">
 sudo apt-get install unrar
-```
+</code></pre>
 
 #### playonlinux
 
@@ -199,13 +201,13 @@ sudo apt-get install unrar
 
 #### skype
 
-```
+<pre><code class="shell">
 dpkg -s apt-transport-https > /dev/null || bash -c "sudo apt-get update; sudo apt-get install apt-transport-https -y" 
 curl https://repo.skype.com/data/SKYPE-GPG-KEY | sudo apt-key add - 
 echo "deb [arch=amd64] https://repo.skype.com/deb stable main" | sudo tee /etc/apt/sources.list.d/skype-stable.list 
 sudo apt-get update 
 sudo apt-get install skypeforlinux -y 
-```
+</code></pre>
 
 #### catalyst
 
@@ -215,12 +217,12 @@ sudo apt-get install skypeforlinux -y
 #### mojo
 
 Перловый веб фреймворк.
-```
+
+<pre><code class="shell">
 sudo su
 curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Mojolicious
 cpan Mojolicious
-
-```
+</code></pre>
 
 #### ansible
 
@@ -270,12 +272,11 @@ chmod g-w ~/.moc/config
 
 ### Проблемы с обновлением пакетов apt-get update
 
-```
+<pre><code class="shell">
 sudo sed -i -e 's/deb http/deb [arch=amd64] http/' "/etc/apt/sources.list.d/google.list"
 sudo sed -i -e 's/deb http/deb [arch=amd64] http/' "/opt/google/chrome/cron/google-chrome"
 sudo apt-get update
-
-```
+</code></pre>
 
 ### Баг с новым окном в хроме
 

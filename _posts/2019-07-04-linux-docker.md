@@ -189,29 +189,33 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 a0f5e7575c36        debian              "bash"              17 seconds ago      Up 15 seconds                           avis-doc
             </code></pre>
         </li>
-        <li><b>-it</b> = Запуск и вход в контейнер
+        <li><b>-it</b> - Запуск и вход в контейнер
             <p>Ключи `it` позволяют создавать tty соединение с контейнером</p>
             <pre><code class="bash">
 $ docker run -it debian bash
 root@14e5a4e1cce8:/#
             </code></pre>
         </li>
-        <li><b>-v</b> = Запустить контейнер и иметь возможность править файлы с наружи
+        <li><b>-v</b> - Запустить контейнер и иметь возможность править файлы с наружи
             <pre><code class="bash">
 docker run --rm -v "$(pwd)"/app:/app identidock
             </code></pre>
         </li>
-        <li><b>--link </b> = Установить соединение из одного контейнера в другой. 
-            <p>В новом контейнере, в `/etc/hosts записывается IP контейнера к которому идет соединение</p>
+        <li><b>--link </b> - Установить соединение из одного контейнера в другой. 
+            <p>В новом контейнере, в `/etc/hosts` записывается IP контейнера к которому идет соединение</p>
             <pre><code class="bash">
-$ docker run -it --link myredis:redis redis bash
-root@952094abaaed:/data# 
-root@952094abaaed:/data# cat /etc/hosts 
+$ docker run --rm -it --link myredis:alias_in_hosts redis bash
+root@df80955ab8fb:/data# cat /etc/hosts 
 ...
-172.17.0.2  redis 7240fde0e186 myredis
-172.17.0.3  952094abaaed
+127.0.0.1   localhost
+172.17.0.2  alias_in_hosts 8868c8a3c6fc myredis
 ...
             </code></pre>
+где
+<ul>
+    <li>myredis - название контейнера</li>
+    <li>alias_in_hosts - алиас, по которому можно обратиться к хосту. Опционален</li>
+</ul>
         </li>
     </ul>
 
@@ -553,7 +557,28 @@ Images: 66
         Ключи
     </summary>
     <ul>
-        <li><b>-t</b> = Задать тег сборке</li>
+        <li><b>-t</b> - Задать тег сборке
+        <pre><code class="bash">
+$ docker build -t avis20/cowsay .
+Sending build context to Docker daemon  4.096kB
+Step 1/5 : FROM ubuntu
+ ---> 549b9b86cb8d
+...
+            </code></pre>
+        <pre><code class="shell">
+$ docker images | grep avis
+avis20/cowsay            latest              4ce46efcd682        2 hours ago         135MB
+        </code></pre>
+        </li>
+        <li><b>-f</b> - Имя файла отличного от Dockerfile
+            <pre><code class="bash">
+$ docker build -t avis20/cowsay -f ./cowsay/my_dockerfile .
+Sending build context to Docker daemon  123.9kB
+Step 1/5 : FROM ubuntu
+ ---> 549b9b86cb8d
+...
+            </code></pre>
+        </li>
         <li><b>-a</b> = 
             <pre><code class="bash">
                 content
@@ -563,9 +588,20 @@ Images: 66
 
 </details>
 
+<div class="info">
+    <p>Последний аргумент всегда должен быть контекст, в рамках которого работает Dockerfile</p>
+</div>
+
 `$ docker build -t alala/cowsay-ubuntu .`
 
-Создает образ контейнера согласно Dockerfil в дире .
+Создает образ контейнера согласно Dockerfile в дире .
+
+<pre><code class="shell">
+$ cat Dockerfile 
+FROM ubuntu
+
+RUN apt-get update && apt-get install -y cowsay fortune
+</code></pre>
 
 <pre><code class="bash">
 $ docker build -t alala/cowsay-ubuntu .
@@ -586,6 +622,11 @@ Removing intermediate container e7c40631e32f
 Successfully built d0f1c901b7d3
 Successfully tagged alala/cowsay-ubuntu:latest
 vagrant@ubuntu-xenial:/project/cowsay$ docker build -t alala/cowsay-ubuntu .
+</code></pre>
+
+<pre><code class="shell">
+$ docker run --rm alala/cowsay-ubuntu echo hello
+hello
 </code></pre>
 
 ## Запушить готовый образ в репозиторий `docker push`

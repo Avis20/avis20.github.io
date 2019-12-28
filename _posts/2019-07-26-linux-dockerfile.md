@@ -28,7 +28,7 @@ reference:
 
 Всегда обязателен и должен находиться первой строкой Dockerfile-а!
 
-## Информация от разработчика `MAINTAINER
+## Информация от разработчика `MAINTAINER`
 
 <pre><code class="bash">
 MAINTAINER Orlov Yaroslav <orlov.avis@yandex.ru>
@@ -48,18 +48,34 @@ COPY entrypoint.sh /tmp
 
 ## Выполнить команду при запуске контейнер `ENTRYPOINT`
 
-<pre><code class="bash">
-$ cat Dockerfile
-...
-ENTRYPOINT "/usr/games/cowsay"
-...
+<i>Эта инструкция позволяет определить выполняемый файл, который будет вызываться для обработки любых аргументов, переданных в команду docker run .</i>
 
+<pre><code class="shell">
+$ cat Dockerfile 
+FROM ubuntu
+
+RUN apt-get update && apt-get install -y cowsay fortune
+
+ENTRYPOINT ["/usr/games/cowsay"]
+</code></pre>
+
+<pre><code class="shell">
 $ docker build -t cowsay/cowsay .
 Sending build context to Docker daemon  3.072kB
-Step 1/5 : FROM ubuntu:18.04
+Step 1/3 : FROM ubuntu
+ ---> 549b9b86cb8d
+Step 2/3 : RUN apt-get update && apt-get install -y cowsay fortune
+ ---> Using cache
+ ---> 27a568a9fd69
+Step 3/3 : ENTRYPOINT ["/usr/games/cowsay"]
+ ---> Using cache
+ ---> 3a274fbc0357
+Successfully built 3a274fbc0357
 Successfully tagged cowsay/cowsay:latest
-...
-$ docker run cowsay/cowsay
+</code></pre>
+
+<pre><code class="shell">
+$ docker run --rm cowsay/cowsay
  __
 <  >
  --
@@ -69,6 +85,57 @@ $ docker run cowsay/cowsay
                 ||----w |
                 ||     ||
 
+</code></pre>
+
+<hr>
+
+Также можно создать скрипт для обработки параметров
+
+<pre><code class="shell">
+$ cat entrypoint.sh
+#!/usr/bin/env bash
+
+if [ $# -eq 0 ]; then
+    /usr/games/fortune | /usr/games/cowsay;
+else
+    /usr/games/cowsay "$@";
+fi
+</code></pre>
+
+<pre><code class="shell">
+$ cat Dockerfile 
+FROM ubuntu
+
+RUN apt-get update && apt-get install -y cowsay fortune
+
+COPY entrypoint.sh /
+
+ENTRYPOINT ["/entrypoint.sh"]
+</code></pre>
+
+<pre><code class="shell">
+$ docker run --rm my_cowsay hello world
+ _____________
+< hello world >
+ -------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</code></pre>
+
+<pre><code class="shell">
+$ docker run --rm my_cowsay
+ ________________________________
+/ You may get an opportunity for \
+\ advancement today. Watch it!   /
+ --------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
 </code></pre>
 
 ## Добавить файлы из хоста в контейнер `ADD`

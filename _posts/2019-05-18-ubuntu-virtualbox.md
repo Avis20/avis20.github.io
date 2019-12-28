@@ -85,6 +85,41 @@ reference:
 
 ## Сеть
 
+## Статический IP v1
+
+[Link1](https://askubuntu.com/questions/984445/netplan-configuration-on-ubuntu-17-04-virtual-machine)
+[Link2](https://askubuntu.com/questions/1043606/static-ip-address-in-a-virtualbox-machine-running-ubuntu-18-04-server-lts?noredirect=1&lq=1)
+
+1) На vb редактируем файл `/etc/netplan/50-cloud-init.yaml `
+<pre><code class="shell">
+$ cat /etc/netplan/50-cloud-init.yaml 
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        enp0s3:
+            dhcp4: true
+            dhcp6: yes
+            routes:
+                - to: 0.0.0.0/0
+                  via: 10.0.3.2
+                  metric: 0
+        enp0s8:
+            dhcp4: no
+            dhcp6: no
+            addresses: [192.168.56.101/24]
+            routes:
+                - to: 192.168.56.1/24
+                  via: 192.168.56.1
+                  metric: 100
+</code></pre>
+
+2) в VB редактирем сеть `vboxnet0`
+
+3) Подключаем к vb и запускаем
+
+## Статический IP v2
+
 <pre><code class="shell">
 avis@ubuntu:~$ cat /etc/network/interfaces
 auto enp0s8

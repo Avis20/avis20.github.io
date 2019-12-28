@@ -11,6 +11,50 @@ reference:
 * TOC 
 {:toc}
 
+# Первый запуск
+
+<pre><code class="shell">
+$ docker run debian echo "Hello world"
+Hello world
+</code></pre>
+
+# Второй запуск
+
+<pre><code class="shell">
+$ docker run -it --name cowsay --hostname cowsay debian bash
+root@cowsay:/# apt-get update
+...
+root@cowsay:/# apt-get install -y cowsay fortune 
+...
+root@cowsay:/# /usr/games/fortune | /usr/games/cowsay 
+ ________________________________________
+/ Q: Why do firemen wear red suspenders? \
+| A: To conform with departmental        |
+\ regulations concerning uniform dress.  /
+ ----------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+root@cowsay:/# 
+
+</code></pre>
+
+## Сохранение в образ
+
+<pre><code class="shell">
+$ docker commit cowsay test_rep/cowsay_image
+sha256:2b9eb0b0e5c1b4984f86965a606bfc2b4edd498dd1b4684bd14196dcf817f374
+</code></pre>
+
+Запуск сохраненного контейнера
+<pre><code class="shell">
+$ docker run --rm test_rep/cowsay_image /usr/games/fortune
+The time is right to make new friends.
+avis@avisPC[16:08:40]:~$ 
+</code></pre>
+
 # Контроль контейнеров
 
 # Consul

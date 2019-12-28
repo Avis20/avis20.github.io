@@ -27,15 +27,6 @@ chmod +x /tmp/install.sh
 /tmp/install.sh
 </code></pre>
 
-<pre><code class="bash">
-$ curl https://get.docker.com > /tmp/install.sh
-$ cat /tmp/install.sh
-...
-$ chmod +x /tmp/install.sh
-$ /tmp/install.sh
-...
-</code></pre>
-
 После выполнения скрипта будет уст. стабильная версия docker и все доп. пакеты
 
 После выполнения скрипта будет предложено добавить пользователя docker в группу суперпользователей чтобы не вводить sudo в дальнейшем. Пример
@@ -112,6 +103,39 @@ curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine && \
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 </code></pre>
 
+# Проверка
+
+<pre><code class="shell">
+$ docker version
+Client: Docker Engine - Community
+ Version:           19.03.1
+ API version:       1.40
+ Go version:        go1.12.5
+ Git commit:        74b1e89e8a
+ Built:             Thu Jul 25 21:21:35 2019
+ OS/Arch:           linux/amd64
+ Experimental:      false
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          19.03.5
+  API version:      1.40 (minimum version 1.12)
+  Go version:       go1.12.12
+  Git commit:       633a0ea838
+  Built:            Wed Nov 13 07:48:43 2019
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.2.6
+  GitCommit:        894b81a4b802e4eb2a91d1ce216b8817763c29fb
+ runc:
+  Version:          1.0.0-rc8
+  GitCommit:        425e105d5a03fabd737a126ad93d62a9eeede87f
+ docker-init:
+  Version:          0.18.0
+  GitCommit:        fec3683
+</code></pre>
+
 # Параметры
 
 ## Запуск контейнера `docker run`
@@ -121,8 +145,25 @@ sudo install /tmp/docker-machine /usr/local/bin/docker-machine
         Ключи
     </summary>
     <ul>
-        <li><b>-d</b> = Запустить контейнер в фоновом режим</li>
-        <li><b>-P</b> = Запустить контейнер с открытыми портами
+        <li><b>--rm</b> - Удалить контейнер после завершения
+        <p>Без --rm</p>
+        <pre><code class="shell">
+avis@avisPC[15:47:30]:~$ docker run debian echo 1
+1
+avis@avisPC[15:51:15]:~$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+dc18ba4196a9        debian              "echo 1"            7 seconds ago       Exited (0) 5 seconds ago                       affectionate_mayer
+        </code></pre>
+        <p>С --rm</p>
+        <pre><code class="shell">
+avis@avisPC[15:52:52]:~$ docker run --rm debian echo 2
+2
+avis@avisPC[15:52:56]:~$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+avis@avisPC[15:53:00]:~$ 
+        </code></pre></li>
+        <li><b>-d</b> - Запустить контейнер в фоновом режимe</li>
+        <li><b>-P</b> - Запустить контейнер с открытыми портами
             <p>Используется проброс порта на хост машину</p>
             <pre><code class="bash">
 $ docker run -P --name myredis -d redis
@@ -131,7 +172,7 @@ vagrant@ubuntu-xenial:~$ docker port myredis
 6379/tcp -> 0.0.0.0:32768
             </code></pre>
         </li>
-        <li><b>-h</b> = Задать имя оболочки
+        <li><b>-h, --hostname</b> - Задать имя оболочки
             <pre><code class="bash">
 $ docker run -h mybash -it debian bash
 root@mybash:/# 
@@ -322,6 +363,20 @@ boot  etc  lib   media  opt  root  sbin  sys  usr
 root@a5f7f69f6234:/# alala
 bash: alala: command not found
 </code></pre>
+
+## Превращение контейнера в образ `docker commit`
+
+<pre><code class="shell">
+$ docker commit cowsay test_rep/cowsay_image
+sha256:2b9eb0b0e5c1b4984f86965a606bfc2b4edd498dd1b4684bd14196dcf817f374
+</code></pre>
+
+где
+<ul>
+    <li>cowsay - название контейнера (работающего или нет)</li>
+    <li>test_rep - название репозитория</li>
+    <li>cowsay_image - название образа</li>
+</ul>
 
 ## Cоздать но не запускать контейнер `docker create`
 
@@ -628,6 +683,7 @@ docker-compose up
 </code></pre>
 
 ## Остановка `docker-compose stop`
+
 
 ## Пересборка `docker-compose build`
 

@@ -26,7 +26,9 @@ reference:
 
 `FROM debian`, `FROM ubuntu:18.04`
 
-Всегда обязателен и должен находиться первой строкой Dockerfile-а!
+<div class="warn">
+  <p>Всегда обязателен и должен находиться первой строкой в Dockerfile</p>
+</div>
 
 ## Информация от разработчика `MAINTAINER`
 

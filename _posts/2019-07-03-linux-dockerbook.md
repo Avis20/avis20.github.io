@@ -190,6 +190,78 @@ $ curl localhost:5000
 Hello world!
 </code></pre>
 
+Для запуска с возможностью править с наружи 
+<pre><code class="shell">
+$ docker run -v $(pwd)/app:/app -p 5000:5000 --rm --name identidock identidock
+ * Serving Flask app "identidock" (lazy loading)
+...
+</code></pre>
+
+<pre><code class="shell">
+$ curl localhost:5000
+Hello aaa!
+</code></pre>
+
+## Запуск с wsgi
+
+Скрипт с возможностью выбора запуска
+<pre><code class="shell">
+$ cat cmd.sh 
+#!/usr/bin/env bash
+
+if [ "$RUN" == 'DEV' ]; then
+    echo "Run Dev Server";
+    exec python "identidock.py"
+else
+    echo "Run Prod Server";
+    exec uwsgi --http 0.0.0.0:9090 --wsgi-file /app/identidock.py --callable app --stats=0.0.0.0:9191
+fi
+</code></pre>
+
+<pre><code class="shell">
+$ cat Dockerfile 
+FROM python:3.5
+
+RUN groupadd -r uwsgi && useradd -r -g uwsgi uwsgi
+RUN pip install Flask uWSGI
+
+WORKDIR /app
+COPY app /app
+COPY cmd.sh /
+
+EXPOSE 9090 9191
+USER uwsgi
+
+CMD ["/cmd.sh"]
+</code></pre>
+
+если `-e RUN=DEV` то запускается dev сервер на 5000 порту
+<pre><code class="shell">
+$ docker run -e RUN=DEV --rm -p 5000:5000 --name identidock identidock_wsgi
+Run Dev Server
+ * Serving Flask app "identidock" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 262-056-075
+</code></pre>
+
+Иначе, wsgi на 9090 порту
+<pre><code class="shell">
+$ docker run --rm -p 9090:9090 --name identidock identidock_wsgi
+Run Prod Server
+*** Starting uWSGI 2.0.18 (64bit) on [Fri Jan  3 16:25:54 2020] ***
+compiled with version: 8.3.0 on 03 January 2020 16:15:38
+os: Linux-4.15.0-72-generic #81~16.04.1-Ubuntu SMP Tue Nov 26 16:34:21 UTC 2019
+nodename: 5403374c8abf
+machine: x86_64
+...
+</code></pre>
+
 # Контроль контейнеров
 
 # Consul

@@ -1,5 +1,5 @@
 ---
-title: Изучаем Docker. Часть 1 - Основные команды
+title: "Docker - Основные команды"
 tags: docker
 reference:
   - title: "Изучаем Docker, часть 1: основы"
@@ -19,7 +19,7 @@ reference:
 
 # Установка
 
-## Установка в любую систему через оф. скрипт `get.docker.com`
+## `get.docker.com` - Установка в любую систему через оф. скрипт 
 
 <pre><code class="bash">
 curl https://get.docker.com > /tmp/install.sh
@@ -138,15 +138,139 @@ Server: Docker Engine - Community
 
 # Параметры
 
-## Запуск контейнера `docker run`
+## `docker run` - Запуск контейнера
 
-<details>
-    <summary>
-        Ключи
-    </summary>
-    <ul>
-        <li><b>--rm</b> - Удалить контейнер после завершения
-        <p>Без --rm</p>
+<ul>
+    <h5>a</h5>
+    <li><b>-a, --attach</b> - Подключить stdout, stdin, stderr запущенного контейнера
+    <pre><code class="shell">
+
+    </code></pre></li>
+<br>
+    <h5>b</h5>
+    <h5>c</h5>
+    <h5>d</h5>
+    <li><b>-d</b> - Запустить контейнер в фоновом режимe
+    <pre><code class="shell">
+$ docker run -d --name myredis redis
+102baa8f1c2c08ef1c7bf15c003b64303d13ee6ff99a69b1297cb5f550794182
+    </code></pre>
+    </li>
+<br>
+    <h5>e</h5>
+    <li><b>-e, --env</b> - Задает переменные окружения
+    <pre><code class="shell">
+$ docker run -e myenv=test --rm ubuntu env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=92efa0c46920
+myenv=test
+HOME=/root
+    </code></pre></li>
+<br>
+    <li><b>--env-file</b> - Задает файл с переменными окружения
+    <pre><code class="shell">
+$ cat env-file.txt 
+myenv=test
+TEST=dsa
+    </code></pre>
+    <pre><code class="shell">
+$ docker run --env-file=env-file.txt --rm ubuntu env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=7fd5eb3eaca0
+myenv=test
+TEST=dsa
+HOME=/root
+    </code></pre></li>
+<br/>
+    <h5>f</h5>
+    <h5>g</h5>
+    <h5>h</h5>
+    <li><b>-h, --hostname</b> - Задать имя оболочки
+    <pre><code class="bash">
+$ docker run -h mybash -it debian bash
+root@mybash:/# 
+    </code></pre></li>
+<br>
+    <h5>i</h5>
+    <li><b>-it</b> - Запуск и вход в контейнер
+    <p>Ключи it позволяют создавать tty соединение с контейнером</p>
+    <pre><code class="bash">
+$ docker run -it debian bash
+root@14e5a4e1cce8:/#
+    </code></pre></li>
+<br>
+    <h5>j</h5>
+    <h5>k</h5>
+    <h5>l</h5>
+    <li><b>--link </b> - Установить соединение из одного контейнера в другой. 
+    <p>В новом контейнере, в `/etc/hosts` записывается IP контейнера к которому идет соединение</p>
+    <pre><code class="bash">
+$ docker run --rm -it --link myredis:alias_in_hosts redis bash
+root@df80955ab8fb:/data# cat /etc/hosts 
+...
+127.0.0.1   localhost
+172.17.0.2  alias_in_hosts 8868c8a3c6fc myredis
+...
+    </code></pre>
+где
+<ul>
+    <li>myredis - название контейнера</li>
+    <li>alias_in_hosts - алиас, по которому можно обратиться к хосту. Опционален</li>
+</ul></li>
+    <h5>m</h5>
+    <h5>n</h5>
+    <li><b>--name</b> = Задать имя контейнеру
+    <p>Задается имя по которому можно обращяться к контейнеру</p>
+    <pre><code class="bash">
+$ docker run --name avis-doc -it debian bash
+root@a0f5e7575c36:/# 
+...
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+a0f5e7575c36        debian              "bash"              17 seconds ago      Up 15 seconds                           avis-doc
+    </code></pre></li>
+<br>
+    <li><b>--net</b> установка сети
+    <pre><code class="shell">
+$ docker run --rm -d --net=host --name postgres postgres:11-alpine
+    </code></pre>
+    <pre><code class="shell">
+$ sudo netstat -tulpn | grep LISTEN | grep postgres
+tcp        0      0 0.0.0.0:5432            0.0.0.0:*               LISTEN      5123/postgres       
+tcp6       0      0 :::5432                 :::*                    LISTEN      5123/postgres  
+    </code></pre></li>
+<br>
+    <h5>o</h5>
+    <h5>p</h5>
+    <li><b>-p </b> - Задает порт с контейнера на хост
+    <pre><code class="shell">
+$ docker run -p 8000:80 -d --rm nginx
+3ca968453e27d021dcdba4dd1d65864bdb06e9712bd850b36fea868671732a67
+    </code></pre></li>
+    <pre><code class="shell">
+$ curl localhost:8000
+!DOCTYPE html
+    </code></pre>
+<br>
+    <li><b>-P</b> - Запустить контейнер с открытыми всеми портами. (видимо те которые прописаны в dockerfile->expose)
+    <p>Используется проброс порта на хост машину. Порт при этом выбирается рандомный</p>
+    <pre><code class="bash">
+$ docker run -P --name myredis -d redis
+5090844a319c99b44e6c2d69b5a0003f34c44a2158cccf407ce0cae849894bdf
+    </code></pre>
+    <pre><code class="shell">
+$ docker port myredis 
+6379/tcp -> 0.0.0.0:32770
+    </code></pre>
+    <pre><code class="shell">
+$ redis-cli -p 32770
+127.0.0.1:32770> 
+    </code></pre></li>
+<br>
+    <h5>q</h5>
+    <h5>r</h5>
+    <li><b>--rm</b> - Удалить контейнер после завершения
+    <p>Без --rm</p>
         <pre><code class="shell">
 avis@avisPC[15:47:30]:~$ docker run debian echo 1
 1
@@ -162,66 +286,28 @@ avis@avisPC[15:52:56]:~$ docker ps -a
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 avis@avisPC[15:53:00]:~$ 
         </code></pre></li>
-        <li><b>-d</b> - Запустить контейнер в фоновом режимe</li>
-        <li><b>-P</b> - Запустить контейнер с открытыми портами
-            <p>Используется проброс порта на хост машину</p>
-            <pre><code class="bash">
-$ docker run -P --name myredis -d redis
-5090844a319c99b44e6c2d69b5a0003f34c44a2158cccf407ce0cae849894bdf
-vagrant@ubuntu-xenial:~$ docker port myredis 
-6379/tcp -> 0.0.0.0:32768
-            </code></pre>
-        </li>
-        <li><b>-h, --hostname</b> - Задать имя оболочки
-            <pre><code class="bash">
-$ docker run -h mybash -it debian bash
-root@mybash:/# 
-            </code></pre>
-        </li>
-        <li><b>--name</b> = Задать имя контейнеру
-            <p>Задается имя по которому можно обращяться к контейнеру</p>
-            <pre><code class="bash">
-$ docker run --name avis-doc -it debian bash
-root@a0f5e7575c36:/# 
-...
-$ docker ps
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-a0f5e7575c36        debian              "bash"              17 seconds ago      Up 15 seconds                           avis-doc
-            </code></pre>
-        </li>
-        <li><b>-it</b> - Запуск и вход в контейнер
-            <p>Ключи `it` позволяют создавать tty соединение с контейнером</p>
-            <pre><code class="bash">
-$ docker run -it debian bash
-root@14e5a4e1cce8:/#
-            </code></pre>
-        </li>
-        <li><b>-v</b> - Запустить контейнер и иметь возможность править файлы с наружи
-            <pre><code class="bash">
-docker run --rm -v "$(pwd)"/app:/app identidock
-            </code></pre>
-        </li>
-        <li><b>--link </b> - Установить соединение из одного контейнера в другой. 
-            <p>В новом контейнере, в `/etc/hosts` записывается IP контейнера к которому идет соединение</p>
-            <pre><code class="bash">
-$ docker run --rm -it --link myredis:alias_in_hosts redis bash
-root@df80955ab8fb:/data# cat /etc/hosts 
-...
-127.0.0.1   localhost
-172.17.0.2  alias_in_hosts 8868c8a3c6fc myredis
-...
-            </code></pre>
-где
-<ul>
-    <li>myredis - название контейнера</li>
-    <li>alias_in_hosts - алиас, по которому можно обратиться к хосту. Опционален</li>
-</ul>
-        </li>
-    </ul>
-
-</details>
-
 <br>
+    <h5>s</h5>
+    <h5>t</h5>
+    <h5>u</h5>
+    <h5>v</h5>
+    <li><b>-v, --volume</b> - Запустить контейнер и иметь возможность править файлы с наружи
+    <pre><code class="bash">
+$ docker run --rm -v "$(pwd)"/app:/app identidock
+    </code></pre></li>
+<br>
+    <li><b>--volumes-from</b> - Подключение тома из другого контейнера
+    <pre><code class="shell">
+$ 
+    </code></pre></li>
+<br/>
+    <h5>w</h5>
+    <h5>x</h5>
+    <h5>y</h5>
+    <h5>z</h5>
+</ul>
+
+<hr>
 
 `docker run debian echo "hi"`
 
@@ -237,14 +323,14 @@ Status: Downloaded newer image for debian:latest
 hi
 </code></pre>
 
-## Узнать какие порты открыты `docker port`
+## `docker port` - Узнать какие порты открыты
 
 <pre><code class="bash">
 vagrant@ubuntu-xenial:~$ docker port myredis 
 6379/tcp -> 0.0.0.0:32768
 </code></pre>
 
-## Список запущеных контейнеров `docker ps`
+## `docker ps` - Список запущеных контейнеров
 
 <details>
     <summary>
@@ -273,7 +359,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 vagrant@ubuntu-xenial:~$ 
 </code></pre>
 
-## Информация о контейнере `docker inspect`
+## `docker inspect` - Информация о контейнере
 
 <details>
     <summary>
@@ -313,7 +399,7 @@ $ docker inspect 83de7485c503
 ]
 </code></pre>
 
-## Список файлов измененных в контейнере `docker diff`
+## `docker diff` - Список файлов измененных в контейнере
 
 <details>
     <summary>
@@ -339,7 +425,7 @@ D /bin/echo
 A /test
 </code></pre>
 
-## Список событий произошедших в контейнере `docker logs`
+## `docker logs` - Список событий произошедших в контейнере
 
 <details>
     <summary>
@@ -368,7 +454,7 @@ root@a5f7f69f6234:/# alala
 bash: alala: command not found
 </code></pre>
 
-## Превращение контейнера в образ `docker commit`
+## `docker commit` - Превращение контейнера в образ
 
 <pre><code class="shell">
 $ docker commit cowsay test_rep/cowsay_image
@@ -382,29 +468,13 @@ sha256:2b9eb0b0e5c1b4984f86965a606bfc2b4edd498dd1b4684bd14196dcf817f374
     <li>cowsay_image - название образа</li>
 </ul>
 
-## Cоздать но не запускать контейнер `docker create`
-
-<details>
-    <summary>
-        Ключи
-    </summary>
-    <ul>
-        <li><b>-a</b> = </li>
-        <li><b>-a</b> = 
-            <pre><code class="bash">
-                content
-            </code></pre>
-        </li>
-    </ul>
-
-</details>
 
 <pre><code class="bash">
 $ docker create debian
 c935ea21cd290d56370ec096479b82df175821043eae48f60f7e811c4d1df553
 </code></pre>
 
-## Присоединится к запущеному контейнеру `docker attach`
+## `docker attach` - Присоединится к запущеному контейнеру
 
 <details>
     <summary>
@@ -430,14 +500,14 @@ $ docker attach mybash
     <p>Для коректной остановки контейнера-наблюдателя нужно нажать Ctrl+P, Ctrl+Q</p>
 </div>
 
-## Выполнить команду внутри запущенного контейнера `docker exec`
+## `docker exec` - Выполнить команду внутри запущенного контейнера
 
 <pre><code class="bash">
 $ docker exec -it competent_franklin bash
 root@4a2d8a302ee5:~#     
 </code></pre>
 
-## Выполняемые процессы внутри контейнера `docker top`
+## `docker top` - Выполняемые процессы внутри контейнера
 
 <pre><code class="bash">
 $ docker top mynginx 
@@ -447,14 +517,31 @@ systemd+            3985                3942                0                   
 vagrant@ubuntu-xenial:~$     
 </code></pre>
 
-## Запуск контейнера `docker start`
+## `docker create` - Cоздать но не запускать контейнер
+
+<details>
+    <summary>
+        Ключи
+    </summary>
+    <ul>
+        <li><b>-a</b> = </li>
+        <li><b>-a</b> = 
+            <pre><code class="bash">
+                content
+            </code></pre>
+        </li>
+    </ul>
+
+</details>
+
+## `docker start` - Запуск контейнера
 
 <pre><code class="bash">
 $ docker start nostalgic_archimedes
 nostalgic_archimedes
 </code></pre>
 
-## Приостановка/запуск контейнера `docker pause/unpause`
+## `docker pause/unpause` - Приостановка/запуск контейнера
 
 <pre><code class="bash">
 $ docker pause mynginx 
@@ -471,14 +558,14 @@ c049c4becddf        nginx               "nginx -g 'daemon of…"   7 minutes ago
 vagrant@ubuntu-xenial:~$ 
 </code></pre>
 
-## Перезапуск контейнера `docker restart`
+## `docker restart` - Перезапуск контейнера
 
 <pre><code class="bash">
 $ docker restart mynginx 
 mynginx
 </code></pre>
 
-## Остановка контейнера `docker stop`
+## `docker stop` - Остановка контейнера
 
 <pre><code class="bash">
 $ docker stop upbeat_visvesvaraya 
@@ -488,7 +575,7 @@ $ docker run -it debian bash
 root@384b48afd439:/# exit
 </code></pre>
 
-## Удалить контейнер `docker rm`
+## `docker rm` - Удалить контейнер
 
 <pre><code class="bash">
 vagrant@ubuntu-xenial:~$ docker ps -a
@@ -503,7 +590,7 @@ fcd26f1ccacc        postgres            "docker-entrypoint.s…"   15 hours ago 
 vagrant@ubuntu-xenial:~$ 
 </code></pre>
 
-## Послать сигнал основному процессу `docker kill`
+## `docker kill` - Послать сигнал основному процессу
 
 <pre><code class="bash">
 $ docker kill competent_franklin 
@@ -520,7 +607,7 @@ $ docker kill -s 15 mybash
 mybash
 </code></pre>
 
-## Добавить тег образу `docker tag`
+## `docker tag` - Добавить тег образу
 
 <pre><code class="bash">
 $ docker tag proxy:0.1 avis20/proxy:0.1
@@ -529,9 +616,48 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 avis20/proxy        0.1                 e716b9df4925        2 weeks ago         109MB
 </code></pre>
 
+## `docker history` - Список уровней образа
+
+<details>
+    <summary>
+        Ключи
+    </summary>
+    <ul>
+        <li><b>-H, --human=(true/false)</b> - Вывести размеры и даты в человеческом формает. По умолчанию включено
+        <pre><code class="bash">
+$ docker history avis20/cowsay:latest -H=false
+IMAGE               CREATED AT                  CREATED BY                                      SIZE                COMMENT
+a99395ef309a        2020-01-03T00:25:04+03:00   /bin/sh -c #(nop)  ENTRYPOINT ["/entrypoint.…   0                   
+b9e9e051fdcd        2020-01-03T00:25:04+03:00   /bin/sh -c #(nop) COPY file:6152ff200c4bfda5…   123                 
+b5690b9e28a3        2020-01-03T00:25:04+03:00   /bin/sh -c apt-get update && apt-get install…   70810049            
+a8d0017afa33        2020-01-03T00:24:53+03:00   /bin/sh -c #(nop)  MAINTAINER Orlov Yaroslav…   0                   
+549b9b86cb8d        2019-12-19T07:21:28+03:00   /bin/sh -c #(nop)  CMD ["/bin/bash"]            0                   
+missing             2019-12-19T07:21:28+03:00   /bin/sh -c mkdir -p /run/systemd && echo 'do…   7                   
+missing             2019-12-19T07:21:27+03:00   /bin/sh -c set -xe   && echo '#!/bin/sh' > /…   745                 
+missing             2019-12-19T07:21:26+03:00   /bin/sh -c [ -z "$(apt-get indextargets)" ]     987485              
+missing             2019-12-19T07:21:25+03:00   /bin/sh -c #(nop) ADD file:53f100793e6c0adfc…   63206481            
+        </code></pre></li>
+    </ul>
+</details>
+
+<pre><code class="shell">
+$ docker history avis20/cowsay:latest 
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+a99395ef309a        25 minutes ago      /bin/sh -c #(nop)  ENTRYPOINT ["/entrypoint.…   0B                  
+b9e9e051fdcd        25 minutes ago      /bin/sh -c #(nop) COPY file:6152ff200c4bfda5…   123B                
+b5690b9e28a3        25 minutes ago      /bin/sh -c apt-get update && apt-get install…   70.8MB              
+a8d0017afa33        25 minutes ago      /bin/sh -c #(nop)  MAINTAINER Orlov Yaroslav…   0B                  
+549b9b86cb8d        2 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B                  
+missing             2 weeks ago         /bin/sh -c mkdir -p /run/systemd && echo 'do…   7B                  
+missing             2 weeks ago         /bin/sh -c set -xe   && echo '#!/bin/sh' > /…   745B                
+missing             2 weeks ago         /bin/sh -c [ -z "$(apt-get indextargets)" ]     987kB               
+missing             2 weeks ago         /bin/sh -c #(nop) ADD file:53f100793e6c0adfc…   63.2MB      
+</code></pre>
+
+
 # Информация о механизме Docker
 
-## Инфо `docker info`
+## `docker info` - Инфо
 
 Различкая информация о машине
 <pre><code class="bash">
@@ -544,13 +670,13 @@ Images: 66
 ...
 </code></pre>
 
-## Справка `docker help`
+## `docker help` - Справка
 
-## Версия `docker version`
+## `docker version` - Версия
 
 # Сборка
 
-## Собрать образ `docker build`
+## `docker build` - Собрать образ
 
 <details>
     <summary>
@@ -629,7 +755,7 @@ $ docker run --rm alala/cowsay-ubuntu echo hello
 hello
 </code></pre>
 
-## Запушить готовый образ в репозиторий `docker push`
+## `docker push` - Запушить готовый образ в репозиторий
 
 `docker push ceaef8f4b6d4/cowsay2`
 
@@ -645,7 +771,7 @@ ba9de9d8475e: Mounted from ceaef8f4b6d4/cowsay
 latest: digest: sha256:dc0523c773771965ef74a06b74337f1b8eeda9ce75ae7d6e9b47b53904509244 size: 1571    
 </code></pre>
 
-## Скачать образ из репозитория `docker pull`
+## `docker pull` - Скачать образ из репозитория
 
 <pre><code class="bash">
 $ docker pull redis
@@ -657,7 +783,7 @@ Status: Image is up to date for redis:latest
 
 # Работа с образами
 
-## Сохранить образ в архив `docker save`
+## `docker save` - Сохранить образ в архив
 
 <pre><code class="bash">
 vagrant@ubuntu-xenial:~$ docker save -o /tmp/redis.tar redis:latest 
@@ -668,7 +794,7 @@ vagrant@ubuntu-xenial:~$ ls -lha /tmp/redis.tar
 vagrant@ubuntu-xenial:~$ 
 </code></pre>
 
-## Загрузить образ из архива `docker load`
+## `docker load` - Загрузить образ из архива
 
 <pre><code class="bash">
 vagrant@ubuntu-xenial:~$ docker load -i /tmp/redis.tar 
@@ -676,7 +802,7 @@ Loaded image: redis:latest
 vagrant@ubuntu-xenial:~$ 
 </code></pre>
 
-## Удаление образа из системы `docker rmi`
+## `docker rmi` - Удаление образа из системы
 
 <details>
     <summary>
@@ -698,62 +824,4 @@ Untagged: redis@sha256:87ba16f132f3afc613f9685c0edfb5cceadd897d96def1b3e8578f6c7
 $ docker rmi generik/ansible
 Untagged: generik/ansible:latest
 Untagged: generik/ansible@sha256:1c841ba1736b55c3357b9f4e88df4038039f532e40ee0ec4f188103043fdd7f6
-</code></pre>
-
-# Работа с несколькими контейнерами `docker-compose`
-
-## Запуск `docker-compose up`
-
-<details>
-    <summary>
-        Ключи
-    </summary>
-    <ul>
-        <li><b>-d</b> = запустить в фоновом режиме</li>
-        <li><b>-a</b> = 
-            <pre><code class="bash">
-                content
-            </code></pre>
-        </li>
-    </ul>
-
-</details>
-
-<pre><code class="bash">
-docker-compose up
-</code></pre>
-
-## Остановка `docker-compose stop`
-
-
-## Пересборка `docker-compose build`
-
-## Список контейнеров `docker-compose ps`
-
-## Запуск одного из контейнеров `docker-compose run`
-
-Поддерживает все те же команды что и docker run
-
-<pre><code class="bash">
-$ docker-compose run -d identidock
-identidock_identidock_run_3
-</code></pre>
-
-## Логи с контейнера `docker-compose logs`
-
-<pre><code class="bash">
-docker-compose logs -f
-</code></pre>
-
-## Удаление остановленных контейнеров `docker-compose rm`
-
-<pre><code class="bash">
-$ docker-compose rm
-</code></pre>
-
-
-## Запуск контейнера работающем в сети на хосте `docker run --net=host`
-
-<pre><code class="bash">
-docker run --rm --net=host -d postgres:9.6 
 </code></pre>

@@ -36,6 +36,12 @@ reference:
 
 # Установка PostgreSQL
 
+## Docker Run
+
+<pre><code class="perl">
+docker run --rm -d --net=host --name postgres -v $(pwd)/pg_data:/var/lib/postgresql/data postgres:11-alpine
+</code></pre>
+
 ## Установка из исходников
 
 <pre><code class="perl">
@@ -47,7 +53,7 @@ drwxrwxr-x 6 vagrant vagrant     4096 Nov 11 22:23 postgresql-9.6.16
 -rw-rw-r-- 1 vagrant vagrant 24474740 Nov 11 22:23 postgresql-9.6.16.tar.gz
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 $ sudo apt-get install make gcc libreadline-dev zlib1g-dev
 </code></pre>
 
@@ -159,7 +165,7 @@ $ psql -c 'select * from pg_available_extensions;'
 
 В книге нет инструкции к установке, поэтому использовал статью - [Как установить и начать использовать PostgreSQL в Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/postgresql-ubuntu-16-04-ru)
 Сама установка свелась к
-<pre><code class="shell">
+<pre><code class="sql">
 sudo apt-get update
 sudo apt-get install postgresql postgresql-contrib
 </code></pre>
@@ -167,14 +173,14 @@ sudo apt-get install postgresql postgresql-contrib
 
 ### Базовая установка postgres на ubuntu server 16.04.4
 
-<pre><code class="shell">
+<pre><code class="sql">
 sudo apt-get update
 sudo apt-get install postgresql postgresql-contrib
 </code></pre>
 
 #### Install 9.6
 
-<pre><code class="shell">
+<pre><code class="sql">
 sudo add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -sc)-pgdg main"
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update
@@ -185,7 +191,7 @@ sudo apt-get install postgresql-9.6
 ## Вход в БД
 
 Зайти под пользователем postgres, в базу postgres
-<pre><code class="shell">
+<pre><code class="sql">
 sudo -iu postgres
 ...
 postgres@Postgres:~$ psql 
@@ -212,7 +218,7 @@ Shutdown modes are:
 # Конфигурирование
 
 Основной файл конфигурации - `postgresql.conf`. Находиться в 
-<pre><code class="shell">
+<pre><code class="sql">
 $ psql 
 postgres@postgres=# show config_file 
 postgres-# ;
@@ -225,13 +231,13 @@ postgres-# ;
 При изменении без перезагрузки можно
 
 1.
-<pre><code class="shell">
+<pre><code class="sql">
 $ pg_ctl reload
 server signaled
 </code></pre>
 
 2.
-<pre><code class="shell">
+<pre><code class="sql">
 # select pg_reload_conf();
 LOG:  received SIGHUP, reloading configuration files
  pg_reload_conf 
@@ -241,14 +247,14 @@ LOG:  received SIGHUP, reloading configuration files
 </code></pre>
 
 3.
-<pre><code class="shell">
+<pre><code class="sql">
 $ kill -s HUP $( pidof postgres )  
 </code></pre>
 
 ## Изменение параметров
 
 Для просмотра текущих параметров
-<pre><code class="shell">
+<pre><code class="sql">
 # select * from pg_settings where name like 'work_mem';
 -[ RECORD 1 ]---+----------------------------------------------------------------------------------------------------------------------
 name            | work_mem <-- Название
@@ -281,7 +287,7 @@ pending_restart | f
 Пример
 
 При дублировании параметров в конфиге, примениться последний
-<pre><code class="shell">
+<pre><code class="sql">
 # select sourceline, name, setting, applied from pg_file_settings where name like 'work_mem';
  sourceline |   name   | setting | applied 
 ------------+----------+---------+---------
@@ -292,7 +298,7 @@ pending_restart | f
 
 Флаг applied говорит какой из параметров примениться
 
-<pre><code class="shell">
+<pre><code class="sql">
 # select pg_reload_conf();
 LOG:  received SIGHUP, reloading configuration files
 LOG:  parameter "work_mem" changed to "8MB"
@@ -302,7 +308,7 @@ LOG:  parameter "work_mem" changed to "8MB"
 (1 row)
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 # select * from pg_settings where name like 'work_mem';
 -[ RECORD 1 ]---+----------------------------------------------------------------------------------------------------------------------
 name            | work_mem
@@ -327,12 +333,12 @@ pending_restart | f
 ## Добавление/удаление из `postgresql.auto.conf`
 
 Изменение postgresql.auto.conf
-<pre><code class="shell">
+<pre><code class="sql">
 # alter system set work_mem to '16MB';
 ALTER SYSTEM
 </code></pre>
 
-<pre><code class="shell">
+<pre><code class="sql">
 # select sourcefile, sourceline, name, setting, applied from pg_file_settings where name like 'work_mem';
                  sourcefile                 | sourceline |   name   | setting | appl
 --------------------------------------------+------------+----------+---------+-----
@@ -344,7 +350,7 @@ ALTER SYSTEM
 
 <div class="warn">
   <p>Для применения параметра нужно перезагрузить конфиг</p>
-<pre><code class="shell">
+<pre><code class="sql">
 # show work_mem;
  work_mem 
 ----------
@@ -353,7 +359,7 @@ ALTER SYSTEM
 </code></pre>
 </div>
 
-<pre><code class="shell">
+<pre><code class="sql">
 # select pg_reload_conf();
 LOG:  received SIGHUP, reloading configuration files
 LOG:  parameter "work_mem" changed to "16MB"
@@ -373,7 +379,7 @@ Time: 1.496 ms
 </code></pre>
 
 Для удаления `alter system` используется `alter system reset`
-<pre><code class="shell">
+<pre><code class="sql">
 # alter system reset work_mem;
 ALTER SYSTEM
 Time: 10.622 ms
@@ -404,7 +410,7 @@ postgres@postgres=# LOG:  parameter "work_mem" changed to "8MB"
   </li>
   <li>
     <p>Чтобы установить всем пользователям доступ ко всем базам по паролю, нужно добавить/изменить в /etc/postgresql/9.5/main/pg_hba.conf</p>
-<pre><code class="shell">
+<pre><code class="sql">
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 host    all             all             0.0.0.0/0               md5
 </code></pre>
@@ -416,7 +422,7 @@ host    all             all             0.0.0.0/0               md5
 
 <div class="warn">
     <p>Перед подключением необходимо задать пароль пользователя к базе. Сделать это можно так: 
-        <pre><code class="shell">
+        <pre><code class="sql">
 avis=# alter user avis with password 'test12';
 ALTER ROLE</code></pre>
     </p>
@@ -451,7 +457,7 @@ Shall the new role be a superuser? (y/n) y
 
 <h3 id="pass">Сменить пароль пользователя под которым вошли \password</h3>
 
-<pre><code class="shell">
+<pre><code class="sql">
 avis@ubuntu:~psql -d postgres
 postgres=# \password
 Enter new password: 
@@ -468,7 +474,7 @@ Enter it again:
 * user - пользователь
 * пароль
 
-<pre><code class="shell">
+<pre><code class="sql">
 psql -h 192.168.16.106 -p 5432 -d avis -U avis
 </code></pre>
 
@@ -480,7 +486,7 @@ psql -h 192.168.16.106 -p 5432 -d avis -U avis
 
 * Текущая база
 
-<pre><code class="shell">
+<pre><code class="sql">
 avis=# select current_database();
 ...
  current_database 
@@ -490,7 +496,7 @@ avis=# select current_database();
 </code></pre>
 
 * Текущий пользователь
-<pre><code class="shell">
+<pre><code class="sql">
 avis=# select current_user;
 ...
  current_user 
@@ -500,7 +506,7 @@ avis=# select current_user;
 </code></pre>
 
 * Текущая версия postgres
-<pre><code class="shell">
+<pre><code class="sql">
 avis=# select version();
 ...
                                                      version                                                      
@@ -523,7 +529,7 @@ avis=# select version();
 ## Индекс по умолчанию - `btree` 
 
 Пример создания
-<pre><code class="shell">
+<pre><code class="sql">
 CREATE TABLE people (
   last_name text not null,
   first_name text not null,
@@ -548,7 +554,7 @@ ON people USING btree (last_name, first_name, dob);
 
 ## hash-индексы
 
-<pre><code class="shell">
+<pre><code class="sql">
 create table testhash (
   fname text not null,
   lname text not null
@@ -667,7 +673,7 @@ select * from movies where genres @> '{"test"}';
 * xmin - номер транзакции которая создала версию строки
 * xmax - номер транзакции которая удалила версию строки
 
-<pre><code class="shell">
+<pre><code class="sql">
 create table t(
   s text
 );
@@ -684,7 +690,7 @@ insert into t values ('Первая версия'); <-- xmin=600, xmax=0
 # Подключения
 
 1. psql
-<pre><code class="shell">
+<pre><code class="sql">
 psql -U avis -h 192.168.16.102 -p 5432 avis
 </code></pre>
 
@@ -702,7 +708,7 @@ psql -U avis -h 192.168.16.102 -p 5432 avis
 
 ## Сколько времени работает сервер?
 
-<pre><code class="shell">
+<pre><code class="sql">
 SELECT date_trunc('second', CURRENT_TIMESTAMP - pg_postmaster_start_time());
 
  date_trunc 
@@ -725,18 +731,18 @@ pg_postmaster_start_time - возвращает время когда серве
 
 ## Список баз данных на сервере
 
-1. <pre><code class="shell">
+1. <pre><code class="sql">
 psql -h 192.168.16.106 -l
                                   List of databases
                                   ...
 </code></pre>
-2. <pre><code class="shell">
+2. <pre><code class="sql">
 avis=# \l
                                   List of databases
                                   ...
 </code></pre>
 
-3. <pre><code class="shell">
+3. <pre><code class="sql">
 SELECT datname FROM pg_database;
 
   datname  
@@ -1079,7 +1085,7 @@ postgres=#
 Чтобы по 100 раз не вводить пароль, можно сохранить параметры подключения <u>с машины с которой подкючаетесь</u> в ~/.pgpass  
 Формат:
 ```host:port:dbname:user:password```
-<pre><code class="shell">
+<pre><code class="sql">
 cat ~/.pgpass 
 ...
 192.168.16.106:5432:*:avis:test12
@@ -1100,13 +1106,13 @@ avis=#
 
 1. Запустите psql и проверьте информацию о текущем подключении.
 
-<pre><code class="shell">
+<pre><code class="sql">
 postgres=# \conninfo 
 You are connected to database "postgres" as user "postgres" via socket in "/tmp" at port "5432".
 </code></pre>
 
 2. Выведите строки таблицы pg_tables.
-<pre><code class="shell">
+<pre><code class="sql">
 postgres=# select schemaname, tablename from pg_tables limit 4;
  schemaname |    tablename    
 ------------+-----------------
@@ -1118,12 +1124,12 @@ postgres=# select schemaname, tablename from pg_tables limit 4;
 </code></pre>
 
 3. Установите команду `less -XS` для постраничного просмотра и еще раз выведите все строки pg_tables.
-<pre><code class="shell">
+<pre><code class="sql">
 postgres=# \setenv PAGER 'less -XS'
 </code></pre>
 
 Для постоянного включения
-<pre><code class="shell">
+<pre><code class="sql">
 postgres@vagrant:~$ cat ~/.psqlrc 
 \pset pager on
 \setenv PAGER 'less -XS'
@@ -1132,7 +1138,7 @@ postgres@vagrant:~$
 
 4. Настройте psql так, чтобы для каждой команды печаталось время ее выполнения. Убедитесь, что при повторном запуске эта настройка сохраняется.
 
-<pre><code class="shell">
+<pre><code class="sql">
 $ cat ~/.psqlrc 
 \timing
 ...
@@ -1154,7 +1160,7 @@ Time: 0.709 ms
 5. Приглашение по умолчанию показывает имя базы данных. Настройте приглашение так, чтобы дополнительно
 выводилась информация о пользователе: роль@база=#
 
-<pre><code class="shell">
+<pre><code class="sql">
 \set PROMPT1 '%n@%/%R%# '
 \set PROMPT2 '%n@%/%R%# '
 </code></pre>
@@ -1164,7 +1170,7 @@ Time: 0.709 ms
 ## 2
 
 1. Создайте таблицу с одной строкой.
-<pre><code class="shell">
+<pre><code class="sql">
 create table t(
   s text
 );
@@ -1172,7 +1178,7 @@ insert into t values ('Первая версия');
 </code></pre>
 
 2. Начните первую транзакцию и выполните запрос к таблице.
-<pre><code class="shell">
+<pre><code class="sql">
 # begin ;
 BEGIN
 ubuntu_vb=# select * from t;
@@ -1182,7 +1188,7 @@ ubuntu_vb=# select * from t;
 (1 row)
 </code></pre>
 3. Во втором сеансе удалите строку и зафиксируйте изменения.
-<pre><code class="shell">
+<pre><code class="sql">
 # begin ;
 BEGIN
 ubuntu_vb=# delete from t;
@@ -1191,7 +1197,7 @@ ubuntu_vb=#
 </code></pre>
 4. Сколько строк увидит первая транзакция, выполнив тот же запрос повторно? Проверьте.
 
-<pre><code class="shell">
+<pre><code class="sql">
 # select *, xmin, xmax from t;
        s       | xmin | xmax 
 ---------------+------+------
@@ -1201,7 +1207,7 @@ ubuntu_vb=#
 
 5. Завершите первую транзакцию.
 
-<pre><code class="shell">
+<pre><code class="sql">
 # commit ;
 COMMIT
 # select *, xmin, xmax from t;
@@ -1214,7 +1220,7 @@ COMMIT
 `BEGIN ISOLATION LEVEL REPEATABLE READ;` Объясните отличия.
 
 tx1
-<pre><code class="shell">
+<pre><code class="sql">
 # select *, xmin, xmax from t;
  s | xmin | xmax 
 ---+------+------
@@ -1232,7 +1238,7 @@ ubuntu_vb=# select *, xmin, xmax from t;
 </code></pre>
 
 tx2
-<pre><code class="shell">
+<pre><code class="sql">
 ubuntu_vb=# begin ;
 BEGIN
 ubuntu_vb=# select *, xmin, xmax from t;
@@ -1249,7 +1255,7 @@ ubuntu_vb=#
 </code></pre>
 
 tx1
-<pre><code class="shell">
+<pre><code class="sql">
 # select *, xmin, xmax from t;
        s       | xmin | xmax 
 ---------------+------+------
@@ -1260,4 +1266,114 @@ ERROR:  could not serialize access due to concurrent update
 ubuntu_vb=# select *, xmin, xmax from t;
 ERROR:  current transaction is aborted, commands ignored until end of transaction block
 ubuntu_vb=# 
+</code></pre>
+
+
+
+# Представления `view`
+
+Преимущества
+* Повторное использование select-ов  
+* Настройка прав доступа 
+
+Недостатки 
+* Нет триггеров (?)
+<div class="error">
+<pre><code class="shell">
+ERROR:  cannot insert into view "test_view"
+DETAIL:  Views that do not select from a single table or view are not automatically updatable.
+HINT:  To enable inserting into the view, provide an INSTEAD OF INSERT trigger or an unconditional ON INSERT DO INSTEAD rule.
+</code></pre>
+</div>
+* Таблицы используемые в представлении должны существовать
+
+Особенности
+* Если данные из таблицы удаляются, то и из view тоже удаляются
+
+Пример:
+<pre><code class="sql">
+create table films (
+    imdb varchar(16) primary key,
+    title varchar(40) not null,
+    kind varchar(10)
+);
+</code></pre>
+
+<pre><code class="sql">
+insert into films values 
+('123', 'test1', 'Comedy'),
+('1234', 'test2', 'Drama'),
+('1235', 'test3', 'Undef');
+</code></pre>
+
+
+<pre><code class="sql">
+create or replace view comedies as
+    select *
+    from films
+    where kind = 'Comedy'
+</code></pre>
+
+<pre><code class="sql">
+select * from comedies;  
+...
+ imdb | title |  kind  
+------+-------+--------
+ 123  | test1 | Comedy
+(1 row)
+</code></pre>
+
+<div class="info">Если view простой (состоит только из фильтра where) то можно делать insert и update. При этом данные добавяться в основную таблицу и если они не подходят под условие where, то во view не покажуться</div>
+
+<pre><code class="sql">
+insert into comedies values
+('12345', 'dsa', 'Comedy');
+</code></pre>
+
+<pre><code class="sql">
+select * from comedies;
+...
+ imdb  | title |  kind  
+-------+-------+--------
+ 123   | test1 | Comedy
+ 12345 | dsa   | Comedy
+(2 rows)
+</code></pre>
+
+<pre><code class="sql">
+select * from films;
+...
+ imdb  | title |  kind  
+-------+-------+--------
+ 123   | test1 | Comedy
+ 1234  | test2 | Drama
+ 1235  | test3 | Undef
+ 12345 | dsa   | Comedy
+(4 rows)
+</code></pre>
+
+При обновлении, пропадает из view
+<pre><code class="sql">
+update comedies set kind = 'test' where imdb = '12345';
+</code></pre>
+
+<pre><code class="sql">
+select * from films;
+...
+ imdb  | title |  kind  
+-------+-------+--------
+ 123   | test1 | Comedy
+ 1234  | test2 | Drama
+ 1235  | test3 | Undef
+ 12345 | dsa   | test
+(4 rows)
+</code></pre>
+
+<pre><code class="sql">
+select * from comedies;
+...
+ imdb | title |  kind  
+------+-------+--------
+ 123  | test1 | Comedy
+(1 row)
 </code></pre>

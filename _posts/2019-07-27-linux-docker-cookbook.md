@@ -1,5 +1,5 @@
 ---
-title: Изучаем Docker. Часть 3 - CookBook
+title: "Docker - CookBook"
 tags: docker
 reference:
   - title:
@@ -13,7 +13,14 @@ reference:
 
 # Cookbook
 
-Здесь перечислены большинство плюшек связаных с докером, всякие шорт каты и т.п.
+Здесь перечислены большинство плюшек связаных с докером, всякие шорт-каты и т.п.
+
+
+# `docker run --net=host` - Запуск контейнера работающем в сети на хосте
+
+<pre><code class="bash">
+docker run --rm --net=host -d postgres:9.6 
+</code></pre>
 
 # История образа. Как понять из чего контейнер?
 

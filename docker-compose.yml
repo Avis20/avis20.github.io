@@ -1,7 +1,0 @@
-doc:
-  build: .
-  # image: jekyll/builder
-  ports:
-    - "4000:4000"
-  volumes:
-    - ./:/srv/jekyll

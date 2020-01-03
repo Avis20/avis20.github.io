@@ -262,6 +262,33 @@ machine: x86_64
 ...
 </code></pre>
 
+## Использования микросервисов
+
+<pre><code class="shell">
+$ docker run --rm --name dnmonster amouat/dnmonster:1.0 
+Unable to find image 'amouat/dnmonster:1.0' locally
+1.0: Pulling from amouat/dnmonster
+</code></pre>
+
+<pre><code class="shell">
+$ docker run -e RUN=DEV -p 5000:5000 --rm --name identidock --link dnmonster:dnmonster identidock
+Run Dev Server
+ * Serving Flask app "identidock" (lazy loading)
+</code></pre>
+
+При запросе `/monsert/<name>` делается запрос в соседний контейнер
+<pre><code class="python">
+@app.route('/monster/&lg;name&gl;')
+def get_identicon(name):
+    res = requests.get('http://dnmonster:8080/monster/' + name + '?size=80')
+    image = res.content
+
+    return Response(image, mimetype='image/png')
+</code></pre>
+
+
+
+
 # Контроль контейнеров
 
 # Consul

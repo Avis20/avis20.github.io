@@ -287,7 +287,14 @@ def get_identicon(name):
 </code></pre>
 
 
+# Распространение образов
 
+<pre><code class="shell">
+$ docker push avis20/identidock:1.0 
+The push refers to repository [docker.io/avis20/identidock]
+</code></pre>
+
+## 
 
 # Контроль контейнеров
 

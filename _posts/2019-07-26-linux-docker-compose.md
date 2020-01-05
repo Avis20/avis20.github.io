@@ -59,10 +59,6 @@ Starting identidockv3compose_identidock_1 ... done
     <h5>z</h5>
 </ul>
 
-<pre><code class="bash">
-docker-compose up
-</code></pre>
-
 ## `docker-compose stop` - Остановка
 
 ## `docker-compose build` - Пересборка 

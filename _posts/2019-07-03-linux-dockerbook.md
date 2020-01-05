@@ -296,6 +296,11 @@ The push refers to repository [docker.io/avis20/identidock]
 
 ## 
 
+
+# `ansible` - Использование инструментальных средств управления конфигурацией 
+
+
+
 # Контроль контейнеров
 
 # Consul

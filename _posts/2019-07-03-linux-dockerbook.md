@@ -294,10 +294,8 @@ $ docker push avis20/identidock:1.0
 The push refers to repository [docker.io/avis20/identidock]
 </code></pre>
 
-## 
 
-
-# `ansible` - Использование инструментальных средств управления конфигурацией 
+### `ansible` - Использование инструментальных средств управления конфигурацией 
 
 
 

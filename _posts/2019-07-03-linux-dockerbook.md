@@ -315,3 +315,45 @@ stdout
 stderr
 </code></pre>
 
+
+## Подключение ELK
+
+1) Подключаем logspout для записи в logstash
+
+`docker-compose.yml`
+<pre><code class="shell">
+...
+  logspout:
+    image: amouat/logspout-logstash:1.0
+    container_name: identilogspout
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:80"
+...
+</code></pre>
+
+Запускаем, проверяем
+<pre><code class="shell">
+$ docker-compose up
+Starting identiredis ... 
+Starting identilogspout ... 
+Starting identidnmonster ... done
+Starting identidock ... done
+Starting identiproxy ... done
+</code></pre>
+
+<pre><code class="shell">
+$ curl localhost
+DOCTYPE
+</code></pre>
+
+Все что теперь возвращается ИЗ КАЖДОГО контейнера, выводиться и из logsoput
+<pre><code class="shell">
+$ curl localhost:8000/logs
+identidock|[pid: 7|app: 0|req: 1/1] 172.23.0.6 () {34 vars in 375 bytes} [Sun Feb  2 19:29:38 2020] GET / => generated 455 bytes in 4 msecs (HTTP/1.0 200) 2 headers in 80 bytes (1 switches on core 0)
+identiproxy|172.23.0.1 - - [02/Feb/2020:19:29:38 +0000] "GET / HTTP/1.1" 200 455 "-" "curl/7.47.0" "-"
+</code></pre>
+
+2) Пишем в logstash
+

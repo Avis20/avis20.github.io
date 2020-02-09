@@ -557,4 +557,60 @@ $ sudo sysctl -w vm.max_map_count=262144
 
 ### Замена logspout на rsyslog
 
- 
+<div class="info">
+  <p>Вобщем, это как-то делается, но нужно ковырять хост... А виртуалки пока неть</p>
+</div> 
+
+## Пишем в prometheus 
+
+Например из cadvisor
+`compose.yml`
+<pre><code class="shell">
+...
+  cadvisor:
+    image: google/cadvisor:canary
+    container_name: identicadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8080:8080"
+
+  prometheus:
+    image: prom/prometheus:master
+    container_name: identiprometheus
+    ports:
+      - "9090:9090"
+    links:
+      - "cadvisor"
+    volumes:
+      - ./prometheus.conf:/prometheus.conf
+    command: --config.file=/prometheus.conf
+...
+</code></pre>
+
+`prometheus.conf`
+<pre><code class="shell">
+global:
+  scrape_interval: 1m
+  scrape_timeout: 10s 
+  evaluation_interval: 1m
+
+scrape_configs:
+
+- job_name: prometheus
+  scheme: http
+  static_configs:
+  - targets:
+    - 'cadvisor:8080'
+    - 'localhost:9090'
+</code></pre>
+
+<pre><code class="shell">
+$ curl http://localhost:9090/
+a href="/graph">Found /a.
+</code></pre>
+
+

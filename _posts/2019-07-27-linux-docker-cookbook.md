@@ -15,6 +15,23 @@ reference:
 
 Здесь перечислены большинство плюшек связаных с докером, всякие шорт-каты и т.п.
 
+# top по контейнерам
+
+<pre><code class="shell">
+docker stats $(docker inspect -f {{.Name}} $(docker ps -q))
+</code></pre>
+
+<pre><code class="shell">
+CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT     MEM %               NET I/O             BLOCK I/O           PIDS
+c8248799dbad        identilogspout      0.28%               4.461MiB / 15.37GiB   0.03%               39.7kB / 3.91MB     6.12MB / 0B         12
+c59d30a1bbc9        identiproxy         0.00%               2.934MiB / 15.37GiB   0.02%               6.08MB / 6.27MB     0B / 0B             2
+1f0e968c415a        identilogstash      0.52%               288.7MiB / 15.37GiB   1.83%               5.76MB / 7.03MB     49.1MB / 0B         41
+2b7ba2b19ef9        identikibana        0.00%               55.07MiB / 15.37GiB   0.35%               109MB / 11.8MB      21.3MB / 4.1kB      11
+f5139fa9439f        identidock          0.00%               34.14MiB / 15.37GiB   0.22%               4.59MB / 3.72MB     659kB / 0B          3
+d22c022a0a89        identielastic       0.98%               436MiB / 15.37GiB     2.77%               15.1MB / 110MB      44.2MB / 55.5MB     125
+456757f85bb0        identidnmonster     0.00%               35.05MiB / 15.37GiB   0.22%               40.9kB / 2.58kB     0B / 0B             15
+ad3158f13845        identiredis         0.18%               2.613MiB / 15.37GiB   0.02%               480kB / 881kB       1.92MB / 8.19kB     3
+</code></pre>
 
 # `docker run --net=host` - Запуск контейнера работающем в сети на хосте
 

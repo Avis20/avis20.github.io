@@ -318,7 +318,7 @@ stderr
 
 ## Подключение ELK
 
-1) Подключаем logspout для записи в logstash
+### 1) Подключаем logspout для записи в logstash
 
 `docker-compose.yml`
 <pre><code class="shell">
@@ -355,5 +355,206 @@ identidock|[pid: 7|app: 0|req: 1/1] 172.23.0.6 () {34 vars in 375 bytes} [Sun Fe
 identiproxy|172.23.0.1 - - [02/Feb/2020:19:29:38 +0000] "GET / HTTP/1.1" 200 455 "-" "curl/7.47.0" "-"
 </code></pre>
 
-2) Пишем в logstash
+### 2) Пишем в logstash
 
+Добавляем в `compose.yml`
+<pre><code class="shell">
+...
+  logspout:
+    image: amouat/logspout-logstash:1.0
+    container_name: identilogspout
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:80"
+    links:
+      - "logstash" <- линк на логстеш
+    command: logstash://logstash:5000 <- хз
+...
+...
+  logstash:
+    image: logstash:6.8.6
+    container_name: identilogstash
+    volumes:
+      - ./identilogs/logstash.conf:/etc/logstash.conf
+    environment:
+      LOGSPOUT: ignore
+    command: -f /etc/logstash.conf
+...
+</code></pre>
+
+<div class="warn">
+  <p>ВАЖНО добавить `LOGSPOUT: ignore` т.к. spout будет постоянно реагировать на изменения в stash и писать об этом в stash.</p>
+  <p>Кароче, будет бесконечный цикл если не добавить</p>
+</div>
+
+`logstash.conf` прост
+<pre><code class="shell">
+input {
+  tcp {
+    port => 5000
+    codec => json
+  }
+  udp {
+    port => 5000
+    codec => json
+  }
+}
+
+output {
+  stdout { codec => rubydebug }
+}
+</code></pre>
+
+Проверяем
+<pre><code class="shell">
+$ docker-compose-restart 
+Stopping identiproxy     ... done
+Stopping identidock      ... done
+Stopping identidnmonster ... done
+Stopping identiredis     ... done
+...
+</code></pre>
+
+<pre><code class="shell">
+$ curl -s localhost 
+DOCTYPE
+</code></pre>
+
+<pre><code class="shell">
+identidock     | [pid: 7|app: 0|req: 1/1] 172.26.0.7 () {34 vars in 376 bytes} [Sun Feb  9 10:58:52 2020] GET / => generated 455 bytes in 5 msecs (HTTP/1.0 200) 2 headers in 80 bytes (1 switches on core 0)
+identiproxy    | 172.26.0.1 - - [09/Feb/2020:10:58:52 +0000] "GET / HTTP/1.1" 200 455 "-" "curl/7.47.0" "-"
+identilogstash | {
+identilogstash |        "message" => "[pid: 7|app: 0|req: 1/1] 172.26.0.7 () {34 vars in 376 bytes} [Sun Feb  9 10:58:52 2020] GET / => generated 455 bytes in 5 msecs (HTTP/1.0 200) 2 headers in 80 bytes (1 switches on core 0)",
+identilogstash |         "stream" => "stderr",
+identilogstash |         "docker" => {
+identilogstash |             "name" => "/identidock",
+identilogstash |               "id" => "700340d8bb953e0416a2835f3d3aea57f5bccf62f9fa5fa4fce70d360b242bfa",
+identilogstash |            "image" => "identidockv12elk_identidock",
+identilogstash |         "hostname" => "700340d8bb95"
+identilogstash |     },
+identilogstash |       "@version" => "1",
+identilogstash |     "@timestamp" => "2020-02-09T10:58:52.242Z",
+identilogstash |           "host" => "172.26.0.5"
+identilogstash | }
+identilogstash | {
+identilogstash |        "message" => "172.26.0.1 - - [09/Feb/2020:10:58:52 +0000] \"GET / HTTP/1.1\" 200 455 \"-\" \"curl/7.47.0\" \"-\"",
+identilogstash |         "stream" => "stdout",
+identilogstash |         "docker" => {
+identilogstash |             "name" => "/identiproxy",
+identilogstash |               "id" => "6469d1201424640b3a8d55e16878f63713a7313a926ffc79792ab235ebbb7837",
+identilogstash |            "image" => "identidockv12elk_identiproxy",
+identilogstash |         "hostname" => "6469d1201424"
+identilogstash |     },
+identilogstash |       "@version" => "1",
+identilogstash |     "@timestamp" => "2020-02-09T10:58:52.242Z",
+identilogstash |           "host" => "172.26.0.5"
+identilogstash | }
+</code></pre>
+
+Здесь
+* identidock - сообщение из приложения
+* identiproxy - сообщение из nginx-а
+* identilogstash - все что попало в логстеш
+
+Для форматирования сообщений, можно добавить обработку в `logstash.conf`
+<pre><code class="shell">
+...
+filter {
+  if [docker][name] =~ /^\/identiproxy.*/ {
+    mutate { replace => { type => "nginx" } }
+    grok {
+      match => { "message" => "%{COMBINEDAPACHELOG}" }
+    }
+  }
+}
+...
+</code></pre>
+
+Тогда вывод сообщений nginx-а будет подробнее 
+<pre><code class="shell">
+identilogstash | {
+identilogstash |         "message" => "172.28.0.1 - - [09/Feb/2020:11:12:18 +0000] \"GET / HTTP/1.1\" 200 455 \"-\" \"curl/7.47.0\" \"-\"",
+identilogstash |          "stream" => "stdout",
+identilogstash |          "docker" => {
+identilogstash |             "name" => "/identiproxy",
+identilogstash |               "id" => "b52e0b5616ea857e6a251043724393d2ed56c9ce2e2d87f860ab2ec4d552fd7f",
+identilogstash |            "image" => "identidockv12elk_identiproxy",
+identilogstash |         "hostname" => "b52e0b5616ea"
+identilogstash |     },
+identilogstash |        "@version" => "1",
+identilogstash |      "@timestamp" => "2020-02-09T11:12:18.444Z",
+identilogstash |            "host" => "172.28.0.5",
+identilogstash |            "type" => "nginx",
+identilogstash |        "clientip" => "172.28.0.1",
+identilogstash |           "ident" => "-",
+identilogstash |            "auth" => "-",
+identilogstash |       "timestamp" => "09/Feb/2020:11:12:18 +0000",
+identilogstash |            "verb" => "GET",
+identilogstash |         "request" => "/",
+identilogstash |     "httpversion" => "1.1",
+identilogstash |        "response" => "200",
+identilogstash |           "bytes" => "455",
+identilogstash |        "referrer" => "\"-\"",
+identilogstash |           "agent" => "\"curl/7.47.0\""
+identilogstash | }
+</code></pre>
+
+### 3) Соединяем logstash с elastic + kibana
+
+<div class="warn">
+  <p>Последняя версия ELK (6.8.6) очень плохо (совсем) не работает. Или ее надо как-то по особенному готовить</p>
+  <p>Ошибка одна и таже, logspout не может писать в logstash...</p>
+</div>
+
+`compose.yml`
+<pre><code class="shell">
+...
+  logstash:
+    image: logstash:2.3.4
+    container_name: identilogstash
+    volumes:
+      - ./identilogs/logstash.2.3.4.conf:/etc/logstash.conf
+    environment:
+      LOGSPOUT: ignore
+    links:
+      - "elasticsearch" <- добавляем связь с elastic
+    command: -f /etc/logstash.conf
+...
+</code></pre>
+
+<pre><code class="shell">
+...
+  kibana:
+    image: kibana:4.6.6
+    container_name: identikibana
+    environment:
+      LOGSPOUT: ignore
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    links:
+      - "elasticsearch"
+    ports:
+      - "5601:5601"
+    
+  elasticsearch:
+    image: elasticsearch:2.4.0
+    container_name: identielastic
+    environment:
+      LOGSPOUT: ignore
+...
+</code></pre>
+
+<div class="warn">
+  <p>Во время запуска elasticsearch версии 6.8.6 возможна ошибка</p>
+  <pre><code class="shell">
+identielastic    | [1]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+  </code></pre>
+  <p>Она решается командой</p>
+  <pre><code class="shell">
+$ sudo sysctl -w vm.max_map_count=262144
+  </code></pre>
+</div>
+
+### Замена logspout на rsyslog
+
+ 

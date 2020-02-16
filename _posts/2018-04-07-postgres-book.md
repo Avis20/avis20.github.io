@@ -23,14 +23,6 @@ reference:
         <li>Страница (блок данных) - </li>
         <li>Кортеж (строка) - </li>
         <li>Пул соединений - это набор сессий, которые уже подключены. Его можно использовать для уменьшения нагрузки.(Пример <a href="#pool">pgbouncer</a>)</li>
-        <li><b>Транзакция</b> - логическая единица работы, удовлетворяющая след. 4-м свойствам (ACID)
-          <ul>
-            <li><b>Атомарность (Atomicity)</b> - в транзакции выполняется все или ничего; транзакция не может выполниться частично</li>
-            <li><b>Согласованность (Consistentcy)</b> - транзакция переводит базу данных из одного согласованного состояния в другое согласованное состояние</li>
-            <li><b>Изолированность (Isolation)</b> - каждая транзакция выполняется вне зависимости от других транзакций</li>
-            <li><b>Долговременность (Durability)</b> - если изменения состояния базы данных, сделанные транзакцией, зафиксированны, то они будут сохранены даже если потом произойдет сбой</li>
-          </ul>
-        </li>
     </ol>
 </div>
 
@@ -515,155 +507,6 @@ avis=# select version();
 (1 row)
 </code></pre>
 
-
-# Индексы
-
-Зачем?
-
-1. Быстрый поиск записей по условию `where`
-2. Объединение таблиц посредством `join`. Необходимо использовать типы сравниваемых полей
-3. Поиск `MAX` и `MIN` значений для ключевых полей
-4. Сортировка, группировка таблиц (`ORDER BY`, `GROUP BY`)
-5. Извлечение данных не из таблиц с данными а из индексного файла.
-
-## Индекс по умолчанию - `btree` 
-
-Пример создания
-<pre><code class="sql">
-CREATE TABLE people (
-  last_name text not null,
-  first_name text not null,
-  dob timestamp not null,
-  gender int not null
-);
-
-CREATE INDEX idx_people_name
-ON people USING btree (last_name, first_name, dob);
-</code></pre>
-
-<b>Можно</b> 
-* Поиск по полному значению
-* Поиск по самому левому префиксу ?
-* Поиск по префиксу столбца
-* Поиск по диапазону значений
-* Запросы только по индексу
-
-<b>Нельзя</b>
-* Пропускать столбцы 
-* 
-
-## hash-индексы
-
-<pre><code class="sql">
-create table testhash (
-  fname text not null,
-  lname text not null
-);
-
-CREATE INDEX idx_testhash
-ON testhash USING hash (fname);
-...
-ПРЕДУПРЕЖДЕНИЕ:  хеш-индексы не записываются в журнал, использовать их не рекомендуется
-CREATE INDEX
-...
-
-insert into testhash values ('TEST', 'HASH');
-
-test=# explain 
-test-# select * from testhash where fname = 'TEST';
-                                QUERY PLAN                                 
----------------------------------------------------------------------------
- Bitmap Heap Scan on testhash  (cost=1.13..5.33 rows=4 width=64)
-   Recheck Cond: (fname = 'TEST'::text)
-   ->  Bitmap Index Scan on idx_testhash  (cost=0.00..1.13 rows=4 width=0)
-         Index Cond: (fname = 'TEST'::text)
-(4 строки)
-
-test=# 
-</code></pre>
-
-* Нельзя использовать данные в индексе чтобы избежать чтения строк
-* Нельзя использовать для сортировки
-* Хеш-индексы не поддерживают поиск по частичному ключу
-* Поддерживают только сравнения на равенство
-
-## GiST индексы (для географических данных)
-
-## GIN (инвертированный) индекс
-
-<details>
-    <summary>
-        Пример
-    </summary>
-    <pre><code class="perl">
-create table movies (
-  id serial primary key,
-  title text not null,
-  genres text[] not null
-);
-
-insert into movies (title, genres) values ('test', array['dsa', 'dsa']);
-insert into movies (title, genres) values ('test2', array['test']);
-
-create index idx_movies_genres
-on movies using gin (genres);
-
-insert into movies (title, genres)
-select
-    uuid_in(md5(random()::text || clock_timestamp()::text)::cstring) as title,
-    ARRAY[10000, 10000, 10000, 10000] as genres
-from generate_series(0, 1000000);
-
-
-
--- SET enable_seqscan  = off;
-
-explain analyse
-select * from movies where 'test' = ANY(genres);
-
-explain analyse
-select * from movies where genres <@ '{"test"}';
-
-explain analyse
-select * from movies where genres @> '{"test"}';
-
-                                                        QUERY PLAN                                                        
---------------------------------------------------------------------------------------------------------------------------
- Gather  (cost=1000.00..31005.28 rows=6001 width=108) (actual time=0.193..88.879 rows=1 loops=1)
-   Workers Planned: 3
-   Workers Launched: 3
-   ->  Parallel Seq Scan on movies  (cost=0.00..29405.18 rows=1936 width=108) (actual time=60.326..81.275 rows=0 loops=4)
-         Filter: ('test'::text = ANY (genres))
-         Rows Removed by Filter: 300052
- Planning time: 0.429 ms
- Execution time: 88.909 ms
-(8 строк)
-
-                                                        QUERY PLAN                                                        
---------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on movies  (cost=7.70..8.81 rows=1 width=108) (actual time=0.016..0.016 rows=1 loops=1)
-   Recheck Cond: (genres <@ '{test}'::text[])
-   Heap Blocks: exact=1
-   ->  Bitmap Index Scan on idx_movies_genres  (cost=0.00..7.70 rows=1 width=0) (actual time=0.006..0.006 rows=1 loops=1)
-         Index Cond: (genres <@ '{test}'::text[])
- Planning time: 0.091 ms
- Execution time: 0.030 ms
-(7 строк)
-
-                                                          QUERY PLAN                                                          
-------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on movies  (cost=53.11..5630.49 rows=6001 width=108) (actual time=0.004..0.004 rows=1 loops=1)
-   Recheck Cond: (genres @> '{test}'::text[])
-   Heap Blocks: exact=1
-   ->  Bitmap Index Scan on idx_movies_genres  (cost=0.00..51.61 rows=6001 width=0) (actual time=0.003..0.003 rows=1 loops=1)
-         Index Cond: (genres @> '{test}'::text[])
- Planning time: 0.029 ms
- Execution time: 0.013 ms
-(7 строк)
-
-
-    </code></pre>
-</details>
 
 # Транзакции
 ## Многоверсионность
@@ -1377,3 +1220,154 @@ select * from comedies;
  123  | test1 | Comedy
 (1 row)
 </code></pre>
+
+
+
+# Индексы
+
+Зачем?
+
+1. Быстрый поиск записей по условию `where`
+2. Объединение таблиц посредством `join`. Необходимо использовать типы сравниваемых полей
+3. Поиск `MAX` и `MIN` значений для ключевых полей
+4. Сортировка, группировка таблиц (`ORDER BY`, `GROUP BY`)
+5. Извлечение данных не из таблиц с данными а из индексного файла.
+
+## Индекс по умолчанию - `btree` 
+
+Пример создания
+<pre><code class="sql">
+CREATE TABLE people (
+  last_name text not null,
+  first_name text not null,
+  dob timestamp not null,
+  gender int not null
+);
+
+CREATE INDEX idx_people_name
+ON people USING btree (last_name, first_name, dob);
+</code></pre>
+
+<b>Можно</b> 
+* Поиск по полному значению
+* Поиск по самому левому префиксу ?
+* Поиск по префиксу столбца
+* Поиск по диапазону значений
+* Запросы только по индексу
+
+<b>Нельзя</b>
+* Пропускать столбцы 
+* 
+
+## hash-индексы
+
+<pre><code class="sql">
+create table testhash (
+  fname text not null,
+  lname text not null
+);
+
+CREATE INDEX idx_testhash
+ON testhash USING hash (fname);
+...
+ПРЕДУПРЕЖДЕНИЕ:  хеш-индексы не записываются в журнал, использовать их не рекомендуется
+CREATE INDEX
+...
+
+insert into testhash values ('TEST', 'HASH');
+
+test=# explain 
+test-# select * from testhash where fname = 'TEST';
+                                QUERY PLAN                                 
+---------------------------------------------------------------------------
+ Bitmap Heap Scan on testhash  (cost=1.13..5.33 rows=4 width=64)
+   Recheck Cond: (fname = 'TEST'::text)
+   ->  Bitmap Index Scan on idx_testhash  (cost=0.00..1.13 rows=4 width=0)
+         Index Cond: (fname = 'TEST'::text)
+(4 строки)
+
+test=# 
+</code></pre>
+
+* Нельзя использовать данные в индексе чтобы избежать чтения строк
+* Нельзя использовать для сортировки
+* Хеш-индексы не поддерживают поиск по частичному ключу
+* Поддерживают только сравнения на равенство
+
+## GiST индексы (для географических данных)
+
+## GIN (инвертированный) индекс
+
+<details>
+    <summary>
+        Пример
+    </summary>
+    <pre><code class="perl">
+create table movies (
+  id serial primary key,
+  title text not null,
+  genres text[] not null
+);
+
+insert into movies (title, genres) values ('test', array['dsa', 'dsa']);
+insert into movies (title, genres) values ('test2', array['test']);
+
+create index idx_movies_genres
+on movies using gin (genres);
+
+insert into movies (title, genres)
+select
+    uuid_in(md5(random()::text || clock_timestamp()::text)::cstring) as title,
+    ARRAY[10000, 10000, 10000, 10000] as genres
+from generate_series(0, 1000000);
+
+
+
+-- SET enable_seqscan  = off;
+
+explain analyse
+select * from movies where 'test' = ANY(genres);
+
+explain analyse
+select * from movies where genres <@ '{"test"}';
+
+explain analyse
+select * from movies where genres @> '{"test"}';
+
+                                                        QUERY PLAN                                                        
+--------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..31005.28 rows=6001 width=108) (actual time=0.193..88.879 rows=1 loops=1)
+   Workers Planned: 3
+   Workers Launched: 3
+   ->  Parallel Seq Scan on movies  (cost=0.00..29405.18 rows=1936 width=108) (actual time=60.326..81.275 rows=0 loops=4)
+         Filter: ('test'::text = ANY (genres))
+         Rows Removed by Filter: 300052
+ Planning time: 0.429 ms
+ Execution time: 88.909 ms
+(8 строк)
+
+                                                        QUERY PLAN                                                        
+--------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on movies  (cost=7.70..8.81 rows=1 width=108) (actual time=0.016..0.016 rows=1 loops=1)
+   Recheck Cond: (genres <@ '{test}'::text[])
+   Heap Blocks: exact=1
+   ->  Bitmap Index Scan on idx_movies_genres  (cost=0.00..7.70 rows=1 width=0) (actual time=0.006..0.006 rows=1 loops=1)
+         Index Cond: (genres <@ '{test}'::text[])
+ Planning time: 0.091 ms
+ Execution time: 0.030 ms
+(7 строк)
+
+                                                          QUERY PLAN                                                          
+------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on movies  (cost=53.11..5630.49 rows=6001 width=108) (actual time=0.004..0.004 rows=1 loops=1)
+   Recheck Cond: (genres @> '{test}'::text[])
+   Heap Blocks: exact=1
+   ->  Bitmap Index Scan on idx_movies_genres  (cost=0.00..51.61 rows=6001 width=0) (actual time=0.003..0.003 rows=1 loops=1)
+         Index Cond: (genres @> '{test}'::text[])
+ Planning time: 0.029 ms
+ Execution time: 0.013 ms
+(7 строк)
+
+
+    </code></pre>
+</details>

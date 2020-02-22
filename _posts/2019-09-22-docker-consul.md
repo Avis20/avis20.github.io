@@ -53,6 +53,19 @@ $ curl -s http://$HOSTA:8500/v1/kv/hello | jq -r '.[].Value' | base64 -d
 world
 </code></pre>
 
+Удаляем ключ
+<pre><code class="shell">
+$ curl -XDELETE http://$HOSTA:8500/v1/kv/hello
+true
+
+$ curl http://$HOSTA:8500/v1/kv/hello | jq 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+</code></pre>
+
+---
+
 Регистрация сервиса
 <pre><code class="perl">
 docker run -d -p 6379:6379 --name redis redis:3
@@ -68,11 +81,26 @@ export HOSTB=3.3.3.3
 curl -s http://$HOSTA:8500/v1/agent/services | json_pp
 </code></pre>
 
+Для отмены регистрации
+<pre><code class="shell">
+curl -XPUT http://$HOSTA:8500/v1/agent/service/deregister/redis
+</code></pre>
+
+
 <div class="warn">
   <p>Вот тут и начинаются пляски</p>
-  <p>то как напишешь name значение не имеет, для получения адреса нужно использовать конструкцию node.node[.datacenter].domain </p>
-  <p> В моем случае <code>redis.service.consul</code>  </p>
-  <p>PS как нормально сделать пока не понял, хотя можно разрулить на уросне nginx-а...</p>
+  <p>Для получения адреса нужно использовать конструкцию node.node[.datacenter].domain</p>
+  <p>В моем случае <code>redis.service.consul</code> </p>
+  <p>Т.е. получается [название сревиса].service.consul
+<pre><code class="shell">
+$ curl -XPUT http://3.3.3.3:8500/v1/agent/service/register -d '{"name":"test-serv", "address":"'127.0.0.1'", "port":1234}'
+avis@avisPC2[19:10:27]:~$ dig @3.3.3.2 test-serv.service.consul +short
+127.0.0.1
+avis@avisPC2[19:11:04]:~$ dig @3.3.3.3 test-serv.service.consul +short
+127.0.0.1
+</code></pre>
+</p>
+  <p>PS как нормально сделать пока не понял, хотя можно разрулить на уровне nginx-а...</p>
 </div>
 
 <div class="error">
@@ -92,7 +120,8 @@ curl -s http://$HOSTA:8500/v1/agent/services | json_pp
 <pre><code class="perl">
 $ cat /etc/docker/daemon.json 
 {
-    "dns": ["3.3.3.2", "8.8.8.8"]
+  "dns": ["3.3.3.2", "8.8.8.8"],
+  "dns-search": ["service.consul"]
 }
 $ sudo service docker restart 
 $ docker run --rm ubuntu cat /etc/resolv.conf
@@ -100,7 +129,20 @@ nameserver 3.3.3.2
 nameserver 8.8.8.8
 </code></pre>
 
-Пингуем сервис добавленный в консул
+`"dns-search": ["service.consul"]` - позволяет обращатся к сервису по имени, без постфикса `service.consul`
+
+Запускаем редисон на consul-1
+<pre><code class="shell">
+docker run --rm -d -p 6379:6379 --name redis_on_consul2 redis:3
+</code></pre>
+
+Пингуем сервис из consul-2
+<pre><code class="perl">
+$ docker run --rm redis:3 redis-cli -h redis.service.consul ping
+PONG
+</code></pre>
+
+и наоборот пингуем сервис из consul-1
 <pre><code class="perl">
 $ docker run --rm redis:3 redis-cli -h redis.service.consul ping
 PONG

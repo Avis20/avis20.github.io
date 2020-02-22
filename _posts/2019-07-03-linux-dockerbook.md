@@ -622,8 +622,70 @@ a href="/graph">Found /a.
 
 ## Кластерное key-value хранилище - `etcd`
 
-1) 
+1) Запускаем кластер из 2-х нод
 
+0) Подгатавливаем виртуалки
+<pre><code class="shell">$ tree -a
+.
+├── etcd-1
+│   ├── <a href="#etcd-1-docker-compose.yml">docker-compose.yml</a>
+│   ├── <a href="#etcd-1-env">.env</a>
+│   ├── install-docker.sh
+│   ├── start-coreos-etcd.sh
+│   └── Vagrantfile
+├── etcd-2
+│   ├── docker-compose.yml
+│   ├── install-docker.sh
+│   ├── start-coreos-etcd.sh
+│   ├── test.sh
+│   └── Vagrantfile
+├── identiproject
+│   ├── docker-compose.yml
+│   ├── identidock
+│   │   ├── app
+│   │   │   ├── identidock.py
+│   │   │   └── tests.py
+│   │   ├── cmd.sh
+│   │   └── Dockerfile
+│   └── identiproxy
+│       ├── Dockerfile
+│       └── main.conf
+├── install-docker.sh
+└── start-etcd.sh
+</code></pre>
+
+<h6 id="etcd-1-docker-compose.yml">etcd-1-docker-compose.yml</h6>
+<pre><code class="shell">
+version: '3'
+services:
+
+  etcd-1:
+    image: quay.io/coreos/etcd <- оф. образ etcd
+    ports: <- порты наружу
+      - "2379:2379"
+      - "2380:2380"
+      - "4001:4001"
+    env_file: .env <- файл с env
+    volumes:
+      - ./start-coreos-etcd.sh:/start-coreos-etcd.sh <- скрипт запуска
+    command: /start-coreos-etcd.sh <- команда запуска
+
+  skydns:
+    image: skynetservices/skydns:2.5.2a <- оф образ
+    env_file: .env <- переменные такие же как и для 
+</code></pre>
+
+<h6 id="etcd-1-env">etcd-1-env</h6>
+<pre><code class="shell">
+HOSTA=3.3.3.2
+HOSTB=3.3.3.3
+ETCD_MACHINES="http://${HOSTA}:2379,http://${HOSTB}:2379"
+
+</code></pre>
+
+
+
+---
 
 Список членов кластера
 
@@ -703,5 +765,99 @@ curl 3.3.3.3:2379/v2/keys/test_key -XGET | jq
 Если вы успешно выполнили самый последний пример из предыдущего раздела, то у вас есть два сервера, работающих
 в кластере etcd: etcd-1 с IP-адресом $HOSTA и  etcd-2 с IP-адресом $HOSTB
 
+<pre><code class="shell">
+curl -XPUT http://${HOSTA}:2379/v2/keys/skydns/config -d value='{"dns_addr":0.0.0.0:53", "domain":"identidock.local."}' | jq .
+</code></pre>
+
+<pre><code class="shell">
+curl -XGET http://${HOSTA}:2379/v2/keys/skydns/config
+</code></pre>
+
+<pre><code class="shell">
+docker run -d -e ETCD_MACHINES="http://${HOSTA}:2379,http://${HOSTB}:2379"  --name dns skynetservices/skydns:2.5.2a
+</code></pre>
+
+не получилось...
+<pre><code class="shell">
+vagrant@vagrant:~/project$ docker run -e ETCD_MACHINES="http://${HOSTA}:2379,http://${HOSTB}:2379"  --name dns skynetservices/skydns:2.5.2a
+2020/02/22 14:50:39 skydns: falling back to default configuration, could not read from etcd: 501: All the given peers are not reachable (Tried to connect to each peer twice and failed) [0]
+2020/02/22 14:50:39 skydns: ready for queries on skydns.local. for tcp://127.0.0.1:53 [rcache 0]
+2020/02/22 14:50:39 skydns: ready for queries on skydns.local. for udp://127.0.0.1:53 [rcache 0]
+</code></pre>
 
 
+## Consul
+
+Список нод в кластере
+<pre><code class="shell">
+$ docker exec consul-1 consul members
+</code></pre>
+
+Запись
+<pre><code class="shell">
+$ HOSTA=3.3.3.2
+$ curl -XPUT http://$HOSTA:8500/v1/kv/foo -d bar
+true
+
+</code></pre>
+
+Чтение 
+<pre><code class="shell">
+$ curl http://$HOSTA:8500/v1/kv/foo | jq .
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    88  100    88    0     0  21113      0 --:--:-- --:--:-- --:--:-- 22000
+[
+  {
+    "LockIndex": 0,
+    "Key": "foo",
+    "Flags": 0,
+    "Value": "YmFy",
+    "CreateIndex": 52,
+    "ModifyIndex": 52
+  }
+]
+
+</code></pre>
+
+А теперь перекодируем
+<pre><code class="shell">
+curl -s http://$HOSTA:8500/v1/kv/foo | jq -r '.[].Value' | base64 -d
+bar
+</code></pre>
+
+
+
+Регистрация сервиса redis в виртуалке consul-2
+<pre><code class="shell">
+docker run -d -p 6379:6379 --name redis redis:3
+export HOSTB=3.3.3.3
+curl -XPUT http://$HOSTB:8500/v1/agent/service/register -d '{"name":"redis", "address":"'$HOSTB'", "port":6379}'
+</code></pre>
+
+Проверяем что зарегали
+<pre><code class="shell">
+$ curl -s http://$HOSTB:8500/v1/agent/services | json_pp
+{
+   "redis" : {
+      "Tags" : null,
+      "ID" : "redis",
+      "ModifyIndex" : 0,
+      "Address" : "3.3.3.3",
+      "Port" : 6379,
+      "EnableTagOverride" : false,
+      "Service" : "redis",
+      "CreateIndex" : 0
+   },
+   "consul" : {
+      "Service" : "consul",
+      "CreateIndex" : 0,
+      "EnableTagOverride" : false,
+      "ID" : "consul",
+      "ModifyIndex" : 0,
+      "Tags" : [],
+      "Port" : 8300,
+      "Address" : ""
+   }
+}
+</code></pre>

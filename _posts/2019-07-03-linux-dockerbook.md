@@ -614,3 +614,94 @@ a href="/graph">Found /a.
 </code></pre>
 
 
+# Обнаружение сервисов
+
+## Использование посредников `ambassadors`
+
+Контейнеры-прокси 
+
+## Кластерное key-value хранилище - `etcd`
+
+1) 
+
+
+Список членов кластера
+
+<pre><code class="shell">
+curl 3.3.3.2:2379/v2/members | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   242  100   242    0     0   104k      0 --:--:-- --:--:-- --:--:--  118k
+{
+  "members": [
+    {
+      "id": "b37e8e15adc9b184",
+      "name": "etcd-2",
+      "peerURLs": [
+        "http://3.3.3.3:2380"
+      ],
+      "clientURLs": [
+        "http://3.3.3.3:2379"
+      ]
+    },
+    {
+      "id": "c8b6c5b68f9d2156",
+      "name": "etcd-1",
+      "peerURLs": [
+        "http://3.3.3.2:2380"
+      ],
+      "clientURLs": [
+        "http://3.3.3.2:2379"
+      ]
+    }
+  ]
+}
+</code></pre>
+
+Проверка записи
+<pre><code class="shell">
+curl 3.3.3.2:2379/v2/keys/test_key2 -XPUT -d value="test_value2" | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   207  100   191  100    16  22811   1910 --:--:-- --:--:-- --:--:-- 23875
+{
+  "action": "set",
+  "node": {
+    "key": "/test_key",
+    "value": "test_value",
+    "modifiedIndex": 13,
+    "createdIndex": 13
+  },
+  "prevNode": {
+    "key": "/test_key",
+    "value": "test_value",
+    "modifiedIndex": 12,
+    "createdIndex": 12
+  }
+}
+</code></pre>
+
+Проверка получения
+<pre><code class="shell">
+curl 3.3.3.3:2379/v2/keys/test_key -XGET | jq
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   102  100   102    0     0  37582      0 --:--:-- --:--:-- --:--:-- 51000
+{
+  "action": "get",
+  "node": {
+    "key": "/test_key",
+    "value": "test_value",
+    "modifiedIndex": 13,
+    "createdIndex": 13
+  }
+}
+</code></pre>
+
+## SkyDNS
+
+Если вы успешно выполнили самый последний пример из предыдущего раздела, то у вас есть два сервера, работающих
+в кластере etcd: etcd-1 с IP-адресом $HOSTA и  etcd-2 с IP-адресом $HOSTB
+
+
+

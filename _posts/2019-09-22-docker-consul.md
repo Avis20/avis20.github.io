@@ -131,19 +131,169 @@ nameserver 8.8.8.8
 
 `"dns-search": ["service.consul"]` - позволяет обращатся к сервису по имени, без постфикса `service.consul`
 
-Запускаем редисон на consul-1
+## Проверка редиса
+
+<pre><code class="shell">
+$ docker run --rm redis:3 cat /etc/resolv.conf
+</code></pre>
+
+Запускаем редисон на consul-2
 <pre><code class="shell">
 docker run --rm -d -p 6379:6379 --name redis_on_consul2 redis:3
 </code></pre>
 
-Пингуем сервис из consul-2
+Регистрируем в виртуалке consul-2
+<pre><code class="shell">
+HOSTB=3.3.3.3
+curl -XPUT http://$HOSTB:8500/v1/agent/service/register -d '{"name":"redis", "address":"'$HOSTB'", "port":6379}'
+</code></pre>
+
+Пингуем сервис из consul-1
 <pre><code class="perl">
 $ docker run --rm redis:3 redis-cli -h redis.service.consul ping
 PONG
 </code></pre>
 
-и наоборот пингуем сервис из consul-1
+и наоборот пингуем сервис из consul-2
 <pre><code class="perl">
 $ docker run --rm redis:3 redis-cli -h redis.service.consul ping
 PONG
+</code></pre>
+
+т.к. в `daemon.json` указан `service.consul` можно сократить. Пингуем сервис из consul-1
+<pre><code class="perl">
+$ docker run --rm redis:3 redis-cli -h redis ping
+PONG
+</code></pre>
+
+## `registrator` - регитрация контейнеров при их старте
+
+Чтобы не делать отдельный запрос на регистрацию контейнера, можно поднять рядом контейнер который будет регистрировать при их появлении
+
+1) `docker-compose.yml` - консул + регистратор
+<pre><code class="shell">
+version: '3'
+services:
+
+  consul-1:
+    image: gliderlabs/consul
+    container_name: consul-1
+    ports:
+      - "8300:8300"
+      - "8301:8301"
+      - "8301:8301/udp"
+      - "8302:8302"
+      - "8400:8400"
+      - "8500:8500"
+      - "3.3.3.2:53:8600/udp"
+    env_file: .env
+    volumes:
+      - ./start-consul-agent.sh:/start-consul-agent.sh
+    entrypoint: /start-consul-agent.sh
+
+  registrator:
+    image: gliderlabs/registrator
+    container_name: registrator
+    links:
+      - "consul-1"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    command: consul://consul-1:8500
+</code></pre>
+
+Консулу говорим что будет всего одна нода
+<pre><code class="shell">
+#!/bin/sh
+
+consul agent -data-dir /data -server -client 0.0.0.0 -advertise $HOSTA -bootstrap-expect 1
+</code></pre>
+
+Список сервисов
+<pre><code class="shell">
+$ curl 3.3.3.2:8500/v1/agent/services | json_pp 
+</code></pre>
+
+<pre><code class="shell">
+docker run --name nc-test amouat/network-utils curl localhost
+</code></pre>
+
+## Финалочка
+
+<img src="/static/img/books/docker/docker-consul.png" alt="">
+
+<pre><code class="shell">
+├── consul-1
+│   ├── <a href="#consul-1-docker-compose">docker-compose.yml</a>
+│   ├── .env
+│   ├── identiproject
+│   │   ├── docker-compose.yml
+│   │   ├── identidock
+│   │   │   ├── app
+│   │   │   │   ├── identidock.py
+│   │   │   │   └── tests.py
+│   │   │   ├── cmd.sh
+│   │   │   └── Dockerfile
+│   │   └── identiproxy
+│   │       ├── Dockerfile
+│   │       └── main.conf
+│   ├── install-docker.sh
+│   ├── start-consul-agent.sh
+│   └── Vagrantfile
+├── consul-2
+│   ├── docker-compose.yml
+│   ├── .env
+│   ├── install-docker.sh
+│   ├── start-consul-agent.sh
+│   ├── start-redis.sh
+│   └── Vagrantfile
+├── destroy-consuls.sh
+├── install-docker.sh
+└── start-consul-vb.sh
+</code></pre>
+
+<h5 id="consul-1-docker-compose">consul-1-docker-compose</h5>
+<pre><code class="yaml">
+version: '3'
+services:
+
+  consul-1:
+    image: gliderlabs/consul
+    container_name: consul-1
+    ports:
+      - "8300:8300"
+      - "8301:8301"
+      - "8301:8301/udp"
+      - "8302:8302"
+      - "8400:8400"
+      - "8500:8500"
+      - "3.3.3.2:53:8600/udp"
+    env_file: .env
+    volumes:
+      - ./start-consul-agent.sh:/start-consul-agent.sh
+    entrypoint: /start-consul-agent.sh
+
+  identiproxy:
+    build:
+      context: ./identiproject/identiproxy
+      dockerfile: Dockerfile
+    container_name: identiproxy
+    ports:
+      - "8000:80"
+    links:
+      - "identidock"
+
+  identidock:
+    build:
+      context: ./identiproject/identidock
+      dockerfile: Dockerfile
+    container_name: identidock
+    volumes:
+      - ./identiproject/identidock/app:/app
+    links:
+      - "dnmonster"
+
+  dnmonster:
+    image: amouat/dnmonster:1.0
+    container_name: identidnmonster
+
 </code></pre>

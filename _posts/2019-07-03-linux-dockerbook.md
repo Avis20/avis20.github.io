@@ -876,12 +876,52 @@ sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 
 Создаем 3 виртуалки
 <pre><code class="shell">
-docker-machine create --driver virtualbox swarm-master
-docker-machine create --driver virtualbox swarm-1
-docker-machine create --driver virtualbox swarm-2
+$ docker-machine create --driver virtualbox --engine-label dc=a --swarm --swarm-master swarm-master
+...
+$ docker-machine ssh swarm-master
+...
+$ docker swarm init --advertise-addr eth1
+...
+docker swarm join --token SWMTKN-1-1bywbigdgpl8480ly57pxt99mm8nqv8hmvthche994zwytfvo7-ddjr6g15dnk4pkcra8metekl9 192.168.99.100:2377
+...
+$ SWARM_TOKE="SWMTKN-1-1bywbigdgpl8480ly57pxt99mm8nqv8hmvthche994zwytfvo7-ddjr6g15dnk4pkcra8metekl9 192.168.99.100:2377"
+
+$ docker-machine create -d virtualbox --engine-label dc=a --swarm --swarm-discovery token://$SWARM_TOKEN swarm-1
+...
+$ docker-machine create -d virtualbox --engine-label dc=b --swarm --swarm-discovery token://$SWARM_TOKEN swarm-2
+...
 </code></pre>
 
+Список вирт машин
+<pre><code class="shell">
+$ docker-machine ls
+NAME           ACTIVE   DRIVER       STATE     URL                         SWARM   DOCKER     ERRORS
+dev1           -        virtualbox   Stopped                                       Unknown    
+dev2           -        virtualbox   Stopped                                       Unknown    
+swarm-1        -        virtualbox   Running   tcp://192.168.99.101:2376           v19.03.5   
+swarm-2        -        virtualbox   Running   tcp://192.168.99.102:2376           v19.03.5   
+swarm-master   -        virtualbox   Running   tcp://192.168.99.100:2376           v19.03.5   
+</code></pre>
+
+ЗЫ Очень старая дока по сварму, нужно глянуть че по новее
+
 ## `fleet`
+
 ## `Kubernetes`
+
+список подов
+<pre><code class="shell">
+$ kubectl get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+redis-controller-8tgxq   1/1     Running   0          3m37s
+</code></pre>
+
+<pre><code class="shell">
+$ kubectl get services
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+kubernetes   ClusterIP   10.96.0.1      none          443/TCP    22m
+redis        ClusterIP   10.99.71.117   none          6379/TCP   12s
+</code></pre>
+
 ## `Mesos`
 

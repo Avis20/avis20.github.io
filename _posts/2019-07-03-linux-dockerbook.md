@@ -861,3 +861,27 @@ $ curl -s http://$HOSTB:8500/v1/agent/services | json_pp
    }
 }
 </code></pre>
+
+
+# Оркестрация
+
+## `Swarm`
+
+Установка docker-machine
+<pre><code class="shell">
+base=https://github.com/docker/machine/releases/download/v0.16.2 && \
+curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine && \
+sudo install /tmp/docker-machine /usr/local/bin/docker-machine
+</code></pre>
+
+Создаем 3 виртуалки
+<pre><code class="shell">
+docker-machine create --driver virtualbox swarm-master
+docker-machine create --driver virtualbox swarm-1
+docker-machine create --driver virtualbox swarm-2
+</code></pre>
+
+## `fleet`
+## `Kubernetes`
+## `Mesos`
+

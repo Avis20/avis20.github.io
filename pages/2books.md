@@ -104,7 +104,10 @@ styles: [books.css]
         </ul>
     </div>
     <p>Использование Docker</p>
-    <p>2019-07-04</p>
+    <p>
+        <span style="color: green" class="octicon octicon-thumbsup"></span><br>
+        <p>2019-07-04 - <br>2020-04-05</p>
+    </p>
 </div>
 
 <hr class="boundary">

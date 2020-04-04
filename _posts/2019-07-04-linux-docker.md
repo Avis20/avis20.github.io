@@ -705,6 +705,12 @@ Step 1/5 : FROM ubuntu
 ...
             </code></pre>
         </li>
+        <li><b>--no-cache</b> = Не использовать кеш при сборке
+            <pre><code class="bash">
+                content
+            </code></pre>
+        </li>
+
         <li><b>-a</b> = 
             <pre><code class="bash">
                 content

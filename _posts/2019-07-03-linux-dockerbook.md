@@ -929,3 +929,6 @@ redis        ClusterIP   10.99.71.117   none          6379/TCP   12s
 
 ## Механизм подтверждения контента в  Docker
 
+<pre><code class="shell">
+export DOCKER_CONTENT_TRUST=1
+</code></pre>

@@ -11,6 +11,10 @@ reference:
 * TOC 
 {:toc}
 
+<div class="warn">
+    <p>Перенес с <a href="https://www.notion.so/avis/Postgres-8d0be6645e19442ebfe0ceb2f2f322c3" target="blank">notion</a></p>
+</div>
+
 
 # Транзакции в Postgres
 

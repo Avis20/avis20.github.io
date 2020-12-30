@@ -1,0 +1,142 @@
+openapi: "3.0.2"
+
+info:
+  title: "OpenWeatherMap API"
+  description: "API получения данных о погоде"
+  version: "2.5"
+
+servers:
+  - url: "https://api.openweathermap.org/data/2.5"
+    description: "Prod server"
+
+security:
+  - app_id: []
+
+paths:
+  /weather:
+    get:
+      tags:
+        - "Получение информации о погоде"
+      summary: "Пока не понятно нужно ли?"
+      description: "Описание API метода"
+      operationId: CurrentWeatherData
+      parameters:
+        - $ref: '#/components/parameters/q'
+        - $ref: '#/components/parameters/id'
+
+      responses:
+        200:
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/200'
+        404:
+          description: "Данные не найдены"
+          content:
+            "text/plan":
+              schema:
+                title: "Данные о погоде не найдены"
+                type: string
+                example: "Not found"
+
+components:
+  securitySchemes:
+    app_id:
+      name: appid
+      in: query
+      type: apiKey
+      description: "Ключ API для авторизации запросов. Если у вас нет ключа API OpenWeatherMap, используйте `938e293965c9d1988b333b4f6300f5c6`."
+
+
+  parameters:
+    q:
+      name: q
+      in: query
+      example: Moscow
+      description: "**Название города**. Например: London. Вы можете вызвать по названию города или по названию города и коду страны. API отвечает списком результатов, соответствующих искомому слову. В качестве значения запроса введите название города и, при необходимости, код страны, разделенный запятой; используйте коды стран ISO 3166"
+      schema:
+        type: string
+    id:
+      name: id
+      in: query
+      description: "**ID города**. Например: 132456. Вы можете вызвать по ID города. API отвечает точным результатом. Список идентификаторов городов можно скачать [здесь](http://bulk.openweathermap.org/sample/). В этот параметр можно включить несколько городов &mdash; просто разделите их запятыми. Максимальное количество местоположений - 20. *Примечание. Один идентификатор считается одним вызовом API. Итак, если у вас есть идентификаторы города, это обрабатывается как 3 вызова API.*"
+      schema:
+        type: string
+
+  schemas:
+    200:
+      title: "Пример"
+      type: object
+      properties:
+        coord:
+          $ref: '#/components/schemas/Coord'
+        weather: 
+          type: array
+          description: "(подробнее Коды погодных условий)"
+          items:
+            $ref: '#/components/schemas/Weather'
+        base:
+          type: string
+          description: "Внутренний параметр"
+          example: stations
+        main:
+          $ref: '#/components/schemas/Main'
+
+    Coord:
+      title: "Coord"
+      type: object
+      properties:
+        lon:
+          type: number
+          description: "Геолокация города, долгота"
+          example: 145.77
+        lat:
+          type: number
+          description: "Геолокация города, широта"
+          example: 145.77
+
+    Weather:
+      title: "Weather"
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: "Идентификатор погодных условий"
+          example: 803
+        main:
+          type: string
+          description: "Группа погодных параметров (Rain=Дождь, Snow=Снег, Extreme=Экстрим и др.)"
+          example: Clouds
+
+    Main:
+      title: "Main"
+      type: object
+      properties:
+        temp:
+          type: number
+          example: 270.61
+          description: "Температура. Единица измерения по умолчанию: Кельвин, Метрическая система: Цельсий, Имперская система: Фаренгейт."
+        feels_like:
+          type: number
+          example: 266.05
+          description: "Хер знает"
+        temp_min:
+          type: number
+          example: 270.37
+          description: "Минимальная температура на данный момент. Это отклонение от текущей температуры, которое возможно для больших городов и мегаполисов, географически расширенных (используйте этот параметр по желанию). Единица измерения по умолчанию: Кельвин, Метрическая система: Цельсий, Имперская система: Фаренгейт."
+        temp_max:
+          type: number
+          example: 271.15
+          description: "Максимальная температура на данный момент. Это отклонение от текущей температуры, которое возможно для больших городов и мегаполисов, географически расширенных (используйте этот параметр по желанию). Единица измерения по умолчанию: Кельвин, Метрическая система: Цельсий, Имперская система: Фаренгейт."
+        pressure:
+          type: integer
+          format: int32
+          example: 1022
+          description: "Атмосферное давление (на уровне моря, если нет данных sea_level или grnd_level), гПа"
+        humidity:
+          type: integer
+          format: int32
+          example: 92
+          description: "Влажность, %"

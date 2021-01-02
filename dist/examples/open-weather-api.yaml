@@ -2,7 +2,7 @@ openapi: "3.0.2"
 
 info:
   title: "OpenWeatherMap API"
-  description: "API получения данных о погоде"
+  description: "[home](/) API получения данных о погоде"
   version: "2.5"
 
 servers:
@@ -11,6 +11,10 @@ servers:
 
 security:
   - app_id: []
+
+externalDocs:
+  description: OpenWeatherMap API Doc
+  url: https://openweathermap.org/api
 
 paths:
   /weather:
@@ -23,6 +27,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/q'
         - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/units'
+        - $ref: '#/components/parameters/lat'
+        - $ref: '#/components/parameters/lon'
 
       responses:
         200:
@@ -48,7 +55,6 @@ components:
       type: apiKey
       description: "Ключ API для авторизации запросов. Если у вас нет ключа API OpenWeatherMap, используйте `938e293965c9d1988b333b4f6300f5c6`."
 
-
   parameters:
     q:
       name: q
@@ -61,6 +67,27 @@ components:
       name: id
       in: query
       description: "**ID города**. Например: 132456. Вы можете вызвать по ID города. API отвечает точным результатом. Список идентификаторов городов можно скачать [здесь](http://bulk.openweathermap.org/sample/). В этот параметр можно включить несколько городов &mdash; просто разделите их запятыми. Максимальное количество местоположений - 20. *Примечание. Один идентификатор считается одним вызовом API. Итак, если у вас есть идентификаторы города, это обрабатывается как 3 вызова API.*"
+      schema:
+        type: string
+    lat:
+      name: lat
+      in: query
+      example: 55.63
+      description: "**Широта**. *Например: 139*. Координата широты интересующего вас места. Должен использоваться с lon."
+      schema:
+        type: string
+    lon:
+      name: lon
+      in: query
+      example: 37.75
+      description: "**Долгота**. *Например: 139*. Координата долготы интересующего вас места. Должен использоваться с lat."
+      schema:
+        type: string
+    units:
+      name: units
+      in: query
+      example: metric
+      description: "**Единицы измерения**. *Пример: британская=imperial*. Возможные значения: standard, metric и imperial. Если вы не используете параметр units, по умолчанию используется standard формат."
       schema:
         type: string
 

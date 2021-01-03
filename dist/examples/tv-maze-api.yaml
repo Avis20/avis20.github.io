@@ -2,7 +2,7 @@ openapi: "3.0.2"
 
 info:
   title: "TV Maze API"
-  description: "dsa"
+  description: "Пример редактирования текста"
   version: "1.0"
 
 externalDocs:
@@ -39,8 +39,7 @@ paths:
         - "Search"
       summary: "Поиск первого шоу"
       description: "Тоже самое что и */search/shows* только возвращает один объект или ничего.\n\n
-        В отличие от */search/*, endpoint */singlesearch/* позволяет встраивать дополнительную информацию в результат.\n\n
-        См. Раздел «Встраивание» для получения дополнительной информации.
+        В отличие от */search/*, endpoint */singlesearch/* позволяет встраивать дополнительную информацию в результат. См. Раздел «Встраивание» для получения дополнительной информации.
       "
       parameters:
         - $ref: '#/components/parameters/q'
@@ -53,14 +52,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/200'
 
-components:
+  /lookup/shows:
+    get:
+      tags:
+        - "Search"
+      summary: "Поиск по tvrage, thetvdb или IMDB ID"
+      description: ""
+      parameters:
+        - $ref: '#/components/parameters/imdb'
 
+      responses:
+        200:
+          description: "Успешный ответ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/200'
+
+components:
   parameters:
     q:
       name: q
       in: query
       example: "The Boys"
       description: "**Поисковая строка**"
+      schema:
+        type: string
+    imdb:
+      name: imdb
+      in: query
+      example: "tt1190634"
+      description: "**IMDB ID**"
       schema:
         type: string
 

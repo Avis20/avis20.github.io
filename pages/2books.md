@@ -230,6 +230,20 @@ styles: [books.css]
 
 <hr class="boundary">
 
+<h2>Python</h2>
+
+<div class="item">
+    <img src="/static/img/books/python-basic.png" alt="Простой Python" title="Простой Python">
+    <div class="links">
+        <ul>
+            <li><a href="https://yadi.sk/i/30OuySaHcvPhzg" target="_blank">Скачать 1-е издание - 2016г. 480с. PDF</a></li>
+        </ul>
+    </div>
+    <p>Простой Python</p>
+    <p>
+    </p>
+</div>
+
 <h2>Perl</h2>
 
 <div class="item">

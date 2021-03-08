@@ -93,16 +93,22 @@ var update_timer = 20000;
 
 function f_update() {
   // обновляем инфу, обновление инфы идет по дефолту, если не задан другой параметр
-  var j_url = "//anison.fm/status.php?widget=true";
+  // var j_url = "//anison.fm/status.php?widget=true";
+  var j_url = "//anison.fm/status.php";
   var j_options = jQuery("#anison").attr("options");
   if (j_options == "nofollow") {
     j_url += "&nofollow=true";
   }
   jQuery.ajax({
     type: "GET",
-    dataType: "jsonp",
+    dataType: "json",
+    crossDomain: true,
+    headers: { "Accept": "application/json"},
     url: j_url,
-    success: function (data, textStatus) {
+    success: function (data, textStatus, request) {
+      console.log(textStatus);
+      console.log(data);
+/*
       // обновляем список слушателей
       var j_listeners = jQuery("#listeners");
       var listeners = data.listeners;
@@ -116,6 +122,7 @@ function f_update() {
       // обновляем время воспороизведения
       var duration = data.duration;
       f_timer(parseInt(duration));
+*/
     }
   })
 }

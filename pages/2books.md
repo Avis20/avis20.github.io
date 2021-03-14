@@ -10,7 +10,7 @@ styles: [books.css]
 * TOC
 {:toc}
 
-<h2>Алгоритмы/Основы</h2>
+# Алгоритмы/Основы
 
 <div class="item">
     <img src="/static/img/books/code.png" alt="Код. Тайный язык информатики" title="Код. Тайный язык информатики">
@@ -56,7 +56,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>C, C++</h2>
+# C, C++
 
 <div class="item">
     <img src="/static/img/books/si.png" alt="Язык программирования Си" title="Язык программирования Си">
@@ -84,7 +84,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>DevOps</h2>
+# DevOps
 
 <div class="item">
     <img src="/static/img/books/highload.png" alt="Высоконагруженные приложения. Программирование, масштабирование, поддержка" title="Высоконагруженные приложения. Программирование, масштабирование, поддержка">
@@ -112,7 +112,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>Linux</h2>
+# Linux
 
 <div class="item">
     <img src="/static/img/books/unix.png" alt="Руководство системного администратора. Unix и Linux" title="Руководство системного администратора. Unix и Linux">
@@ -138,7 +138,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>Сети</h2>
+# Сети
 
 <div class="item">
     <img src="/static/img/books/net1.png" alt="Компьютерные сети. Исходящий поток" title="Компьютерные сети. Исходящий поток">
@@ -152,7 +152,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>БД, PostgreSQL</h2>
+# БД, PostgreSQL
 
 <div class="item">
     <img src="/static/img/books/db_system2.png" alt="Введение в системы баз данных" title="Введение в системы баз данных">
@@ -216,7 +216,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>JavaScript</h2>
+# JavaScript
 
 <div class="item">
     <img src="/static/img/books/js-patterns.png" alt="JavaScript. Шаблоны" title="JavaScript. Шаблоны">
@@ -230,7 +230,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>Python</h2>
+# Python
 
 <div class="item">
     <img src="/static/img/books/python-basic.png" alt="Простой Python" title="Простой Python">
@@ -241,10 +241,12 @@ styles: [books.css]
     </div>
     <p>Простой Python</p>
     <p>
+        <span style="color: green" class="octicon octicon-thumbsup"></span><br>
+        <br>2021-01-15 -<br> 2021-03-14
     </p>
 </div>
 
-<h2>Perl</h2>
+# Perl
 
 <div class="item">
     <img src="/static/img/books/perl-lama.png" alt="Изучаем Perl" title="Изучаем Perl">
@@ -370,7 +372,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>Git</h2>
+# Git
 
 <div class="item">
     <img src="/static/img/books/git1.png" alt="Pro Git" title="Pro Git">
@@ -394,7 +396,7 @@ styles: [books.css]
 
 <hr class="boundary">
 
-<h2>etc</h2>
+# etc
 
 <div class="item">
     <img src="/static/img/books/blank.jpg" alt="Yaml Cookbook. at the YamlForRuby site" title="Yaml Cookbook. at the YamlForRuby site">

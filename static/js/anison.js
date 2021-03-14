@@ -161,6 +161,17 @@ jQuery(document).ready(function() {
   // anison_code += '</div>\n';
 
   if (jQuery.jPlayer) {
+
+    anison_code += '<div class="track_info">\n';
+    anison_code += '  <div class="track_info_str">\n';
+    anison_code += '     <span id="on_air"></span>\n';
+    anison_code += '  </div>\n';
+    anison_code += '  <div class="track_info_str">\n';
+    anison_code += '    <span class="text">&#1044;&#1086; &#1082;&#1086;&#1085;&#1094;&#1072; &#1090;&#1088;&#1077;&#1082;&#1072; &#1086;&#1089;&#1090;&#1072;&#1083;&#1086;&#1089;&#1100;:</span>\n'; // До конца трека осталось:
+    anison_code += '    <span id="duration"></span>\n';
+    anison_code += '  </div>\n';
+    anison_code += '</div>\n';
+
     anison_code += '<div class="anison_player_container">\n';
     anison_code += '  <div id="anison_player"></div>\n';
     anison_code += '  <div id="anison_start" title="&#1057;&#1090;&#1072;&#1088;&#1090;" class="player_btn icon-btn-ball start active">\n'; // Старт
@@ -191,23 +202,6 @@ jQuery(document).ready(function() {
     anison_code += '</div>\n';
   }
 
-  anison_code += '</div>\n';
-  if (jQuery.jPlayer) {
-/*
-    anison_code += '<div class="track_info">\n';
-    anison_code += '  <div class="track_info_str">\n';
-    anison_code += '     <span id="on_air"></span>\n';
-    anison_code += '  </div>\n';
-    anison_code += '  <div class="track_info_str">\n';
-    anison_code += '    <span class="text">&#1044;&#1086; &#1082;&#1086;&#1085;&#1094;&#1072; &#1090;&#1088;&#1077;&#1082;&#1072; &#1086;&#1089;&#1090;&#1072;&#1083;&#1086;&#1089;&#1100;:</span>\n'; // До конца трека осталось:
-    anison_code += '    <span id="duration"></span>\n';
-    anison_code += '  </div>\n';
-    anison_code += '  <div class="track_info_str">\n';
-    anison_code += '    <span id="listeners"></span>\n';
-    anison_code += '  </div>\n';
-    anison_code += '</div>\n';
-*/
-  }
   anison_code += '</div>\n';
   anison_code += j_style;
   anison.addClass("radio_info").html(anison_code);

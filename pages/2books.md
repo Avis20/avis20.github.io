@@ -239,7 +239,7 @@ styles: [books.css]
             <li><a href="https://yadi.sk/i/30OuySaHcvPhzg" target="_blank">Скачать 1-е издание - 2016г. 480с. PDF</a></li>
         </ul>
     </div>
-    <p>Простой Python</p>
+    <p>Билл Любанович. Простой Python</p>
     <p>
         <span style="color: green" class="octicon octicon-thumbsup"></span><br>
         <br>2021-01-15 -<br> 2021-03-14
@@ -255,7 +255,7 @@ styles: [books.css]
             <li><a href="https://yadi.sk/i/6KsBX-za3Ygif8" target="_blank">Скачать 5-е издание - 2009г. 384с. PDF</a></li>
         </ul>
     </div>
-    <p>Изучаем Perl</p>
+    <p>Шварц Рэндал Л., Д Фой Брайан. Изучаем Perl</p>
     <p>
         <span style="color: green" class="octicon octicon-thumbsup"></span><br>
         <br> - 2016г.
@@ -269,7 +269,7 @@ styles: [books.css]
             <li><a href="https://yadi.sk/i/FpP89Nm03UBdeN" target="_blank">Скачать 2-е издание - 2008г. 320 с. PDF</a></li>
         </ul>
     </div>
-    <p>Изучаем perl глубже</p>
+    <p>Шварц Рэндал Л., Д Фой Брайан. Изучаем perl глубже</p>
     <p>
         <span style="color: green" class="octicon octicon-thumbsup"></span><br>
         <br> - 2017г.

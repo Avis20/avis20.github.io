@@ -246,6 +246,19 @@ styles: [books.css]
     </p>
 </div>
 
+<div class="item">
+    <img src="/static/img/books/python-basic2.png" alt="Основы Python" title="Основы Python">
+    <div class="links">
+        <ul>
+            <li><a href="https://disk.yandex.ru/i/MlKiVU4-WfdBWA" target="_blank">Скачать 1-е издание - 2021г. 304с. PDF</a></li>
+        </ul>
+    </div>
+    <p>Аллен Б.Дауни. Основы Python</p>
+    <p>
+        <br>2021-04-01 -<br>
+    </p>
+</div>
+
 # Perl
 
 <div class="item">

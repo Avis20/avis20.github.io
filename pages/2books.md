@@ -259,6 +259,19 @@ styles: [books.css]
     </p>
 </div>
 
+<div class="item">
+    <img src="/static/img/books/python-fluent.png" alt="Python: К вершинам мастерства" title="Python: К вершинам мастерства">
+    <div class="links">
+        <ul>
+            <li><a href="https://disk.yandex.ru/i/sWyU1o7mGpoFPg" target="_blank">Скачать 1-е издание - 2016г. 768с. PDF</a></li>
+        </ul>
+    </div>
+    <p>Лучано Ромальо. Python: К вершинам мастерства</p>
+    <p>
+        <br> -<br>
+    </p>
+</div>
+
 # Perl
 
 <div class="item">

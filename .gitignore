@@ -4,3 +4,4 @@ _site
 .local
 .local/*
 /Gemfile.lock
+npm-debug.log

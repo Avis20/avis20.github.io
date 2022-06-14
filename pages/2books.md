@@ -56,6 +56,20 @@ styles: [books.css]
 
 <hr class="boundary">
 
+# Паттерны
+
+<div class="item">
+    <img src="/static/img/books/Patterny_obektno-orientirovannogo_proektirovania_2020.png" alt="Паттерны объектно-ориентированного проектирования" title="Паттерны объектно-ориентированного проектирования">
+    <div class="links">
+        <ul>
+            <li><a href="https://disk.yandex.ru/i/RCHkXCZPntwiYQ" target="_blank">Скачать 2020г. 448 с. PDF</a></li>
+        </ul>
+    </div>
+    <p>Паттерны объектно-ориентированного проектирования</p>
+</div>
+
+<hr class="boundary">
+
 # C, C++
 
 <div class="item">
